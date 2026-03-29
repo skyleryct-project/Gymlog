@@ -9,114 +9,82 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>重訓紀錄</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #f2f2f7; color: #1c1c1e; font-size: 16px; }
-.app { max-width: 600px; margin: 0 auto; padding-bottom: 80px; }
-
-/* Tab bar */
-.tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-top: 0.5px solid #c6c6c8; display: flex; z-index: 100; max-width: 600px; margin: 0 auto; }
-.tabbar-inner { display: flex; width: 100%; }
-.tab-btn { flex: 1; padding: 8px 4px 12px; border: none; background: none; font-size: 10px; color: #8e8e93; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.tab-btn.active { color: #007aff; }
-.tab-icon { font-size: 22px; line-height: 1; }
-
-.section { display: none; padding: 16px; }
-.section.active { display: block; }
-
-/* Header */
-.page-title { font-size: 28px; font-weight: 700; margin-bottom: 20px; letter-spacing: -0.5px; }
-
-/* Cards */
-.card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-.card-title { font-size: 13px; font-weight: 600; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
-
-/* Form */
-.field { margin-bottom: 14px; }
-.field label { font-size: 13px; color: #8e8e93; display: block; margin-bottom: 5px; }
-.field input, .field select { width: 100%; padding: 11px 12px; border: 1px solid #e5e5ea; border-radius: 10px; font-size: 16px; background: #fff; color: #1c1c1e; appearance: none; -webkit-appearance: none; }
-.field input:focus, .field select:focus { outline: none; border-color: #007aff; }
-.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-
-/* Buttons */
-.btn-primary { width: 100%; padding: 14px; background: #007aff; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 4px; }
-.btn-primary:active { opacity: 0.8; }
-.btn-secondary { padding: 10px 16px; background: #f2f2f7; color: #007aff; border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; }
-.btn-secondary:active { opacity: 0.7; }
-.btn-row { display: flex; gap: 8px; margin-top: 10px; }
-
-/* Band selector */
-.band-row { display: flex; gap: 8px; margin-bottom: 14px; }
-.band-btn { flex: 1; padding: 10px 4px; background: #f2f2f7; border: 1.5px solid transparent; border-radius: 10px; font-size: 14px; font-weight: 500; color: #1c1c1e; cursor: pointer; text-align: center; }
-.band-btn.selected { background: #e8f0fe; border-color: #007aff; color: #007aff; }
-
-/* Log items */
-.log-item { padding: 12px 0; border-bottom: 0.5px solid #e5e5ea; }
-.log-item:last-child { border-bottom: none; }
-.log-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
-.log-name { font-size: 15px; font-weight: 600; }
-.log-right { display: flex; align-items: center; gap: 8px; }
-.log-sets-count { font-size: 12px; color: #8e8e93; }
-.log-date-label { font-size: 12px; color: #8e8e93; }
-.sets-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { background: #f2f2f7; border-radius: 20px; padding: 4px 12px; font-size: 13px; color: #3a3a3c; display: flex; align-items: center; gap: 4px; }
-.chip-del { background: none; border: none; color: #c7c7cc; font-size: 12px; cursor: pointer; padding: 0; line-height: 1; }
-.chip-del:active { color: #ff3b30; }
-
-/* Badge */
-.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; margin-left: 6px; }
-.badge-chest { background: #e3f2fd; color: #1565c0; }
-.badge-back  { background: #e8f5e9; color: #2e7d32; }
-.badge-legs  { background: #fff8e1; color: #e65100; }
-.badge-arms  { background: #f3e5f5; color: #6a1b9a; }
-.badge-core  { background: #fce4ec; color: #880e4f; }
-.badge-cardio{ background: #fbe9e7; color: #bf360c; }
-
-/* Date separator in history */
-.date-sep { font-size: 13px; font-weight: 600; color: #8e8e93; padding: 12px 0 6px; border-top: 0.5px solid #e5e5ea; margin-top: 4px; }
-.date-sep:first-child { border-top: none; margin-top: 0; padding-top: 0; }
-
-/* Metrics */
-.metrics-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-.metric-card { background: #fff; border-radius: 12px; padding: 14px 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-.metric-val { font-size: 26px; font-weight: 700; color: #007aff; }
-.metric-lbl { font-size: 11px; color: #8e8e93; margin-top: 2px; }
-
-/* Chart */
-.chart-wrap { position: relative; width: 100%; height: 220px; }
-
-/* Filter pills */
-.filter-scroll { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 14px; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-.filter-scroll::-webkit-scrollbar { display: none; }
-.filter-pill { white-space: nowrap; padding: 6px 14px; background: #fff; border: 1px solid #e5e5ea; border-radius: 20px; font-size: 13px; color: #3a3a3c; cursor: pointer; flex-shrink: 0; }
-.filter-pill.active { background: #007aff; border-color: #007aff; color: #fff; }
-
-/* Toast */
-#toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.75); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 200; white-space: nowrap; }
-#toast.show { opacity: 1; }
-
-/* Sheets section */
-.sheets-step { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-.sheets-step h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
-.sheets-step p, .sheets-step li { font-size: 14px; color: #3a3a3c; line-height: 1.6; }
-.sheets-step ol { padding-left: 18px; }
-.sheets-step code { background: #f2f2f7; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: monospace; }
-.url-input-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
-.url-input-row input { flex: 1; padding: 10px 12px; border: 1px solid #e5e5ea; border-radius: 10px; font-size: 14px; }
-.sync-status { font-size: 13px; margin-top: 8px; min-height: 20px; }
-.sync-ok { color: #34c759; }
-.sync-err { color: #ff3b30; }
-.empty { text-align: center; padding: 32px 16px; color: #8e8e93; font-size: 14px; }
-
-/* New movement inline */
-.new-move-row { display: flex; gap: 8px; margin-top: 8px; }
-.new-move-row input { flex: 1; padding: 10px 12px; border: 1px solid #e5e5ea; border-radius: 10px; font-size: 15px; }
-.period-btn { flex: 1; padding: 8px 4px; background: #f2f2f7; border: none; border-radius: 10px; font-size: 13px; font-weight: 500; color: #8e8e93; cursor: pointer; }
-.period-btn.active { background: #007aff; color: #fff; }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;background:#f2f2f7;color:#1c1c1e;font-size:16px}
+.app{max-width:600px;margin:0 auto;padding-bottom:90px}
+.tabbar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);border-top:0.5px solid #c6c6c8;display:flex;z-index:100;max-width:600px;margin:0 auto}
+.tabbar-inner{display:flex;width:100%}
+.tab-btn{flex:1;padding:8px 2px 12px;border:none;background:none;font-size:10px;color:#8e8e93;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.tab-btn.active{color:#007aff}
+.tab-icon{font-size:20px;line-height:1}
+.section{display:none;padding:16px}
+.section.active{display:block}
+.page-title{font-size:28px;font-weight:700;margin-bottom:20px;letter-spacing:-0.5px}
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.card-title{font-size:13px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.field{margin-bottom:14px}
+.field label{font-size:13px;color:#8e8e93;display:block;margin-bottom:5px}
+.field input,.field select{width:100%;padding:11px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:16px;background:#fff;color:#1c1c1e;-webkit-appearance:none}
+.field input:focus,.field select:focus{outline:none;border-color:#007aff}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.btn-primary{width:100%;padding:14px;background:#007aff;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-top:4px}
+.btn-primary:active{opacity:0.8}
+.btn-secondary{padding:10px 16px;background:#f2f2f7;color:#007aff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer}
+.btn-secondary:active{opacity:0.7}
+.btn-row{display:flex;gap:8px;margin-top:10px}
+.band-row{display:flex;gap:8px;margin-bottom:14px}
+.band-btn{flex:1;padding:10px 4px;background:#f2f2f7;border:1.5px solid transparent;border-radius:10px;font-size:14px;font-weight:500;color:#1c1c1e;cursor:pointer;text-align:center}
+.band-btn.selected{background:#e8f0fe;border-color:#007aff;color:#007aff}
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.metric-card{background:#fff;border-radius:12px;padding:14px 10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.metric-val{font-size:26px;font-weight:700;color:#007aff}
+.metric-lbl{font-size:11px;color:#8e8e93;margin-top:2px}
+.chart-wrap{position:relative;width:100%;height:220px}
+.filter-scroll{display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.filter-scroll::-webkit-scrollbar{display:none}
+.filter-pill{white-space:nowrap;padding:6px 14px;background:#fff;border:1px solid #e5e5ea;border-radius:20px;font-size:13px;color:#3a3a3c;cursor:pointer;flex-shrink:0}
+.filter-pill.active{background:#007aff;border-color:#007aff;color:#fff}
+.period-btn{flex:1;padding:8px 4px;background:#f2f2f7;border:none;border-radius:10px;font-size:13px;font-weight:500;color:#8e8e93;cursor:pointer}
+.period-btn.active{background:#007aff;color:#fff}
+.log-item{padding:12px 0;border-bottom:0.5px solid #e5e5ea}
+.log-item:last-child{border-bottom:none}
+.log-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.log-name{font-size:15px;font-weight:600}
+.log-right{display:flex;align-items:center;gap:8px}
+.log-meta{font-size:12px;color:#8e8e93}
+.sets-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:#f2f2f7;border-radius:20px;padding:4px 12px;font-size:13px;color:#3a3a3c;display:flex;align-items:center;gap:4px}
+.chip-del{background:none;border:none;color:#c7c7cc;font-size:12px;cursor:pointer;padding:0;line-height:1}
+.chip-del:active{color:#ff3b30}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;margin-left:6px}
+.badge-chest{background:#e3f2fd;color:#1565c0}
+.badge-back{background:#e8f5e9;color:#2e7d32}
+.badge-legs{background:#fff8e1;color:#e65100}
+.badge-arms{background:#f3e5f5;color:#6a1b9a}
+.badge-core{background:#fce4ec;color:#880e4f}
+.badge-cardio{background:#fbe9e7;color:#bf360c}
+.date-sep{font-size:13px;font-weight:600;color:#8e8e93;padding:12px 0 6px;border-top:0.5px solid #e5e5ea;margin-top:4px}
+.date-sep:first-child{border-top:none;margin-top:0;padding-top:0}
+.sync-ok{color:#34c759}
+.sync-err{color:#ff3b30}
+.sync-status{font-size:13px;margin-top:8px;min-height:18px}
+.sheets-step{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.sheets-step h3{font-size:15px;font-weight:600;margin-bottom:8px}
+.sheets-step p,.sheets-step li{font-size:14px;color:#3a3a3c;line-height:1.6}
+.sheets-step ol{padding-left:18px}
+.sheets-step code{background:#f2f2f7;padding:2px 6px;border-radius:4px;font-size:13px;font-family:monospace}
+.new-move-row{display:flex;gap:8px;margin-top:8px}
+.new-move-row input{flex:1;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:15px}
+.url-input-row{display:flex;gap:8px;align-items:center;margin-top:10px}
+.url-input-row input{flex:1;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px}
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.75);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;opacity:0;transition:opacity 0.2s;pointer-events:none;z-index:200;white-space:nowrap}
+#toast.show{opacity:1}
 </style>
 </head>
 <body>
 <div class="app">
+
   <!-- 記錄 -->
   <div class="section active" id="tab-record">
     <div class="page-title">記錄訓練</div>
@@ -138,15 +106,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
         <label>動作名稱</label>
         <select id="inp-exercise-select" onchange="onExerciseChange()"></select>
       </div>
-      <div class="field" id="new-move-area" style="display:none;">
+      <div class="field" id="new-move-area" style="display:none">
         <label>新動作名稱</label>
         <div class="new-move-row">
           <input type="text" id="inp-new-exercise" placeholder="例：Cable Fly">
           <button class="btn-secondary" onclick="saveNewMovement()">儲存</button>
         </div>
       </div>
-
-      <!-- 一般動作 -->
       <div id="weight-area">
         <div class="row3">
           <div class="field"><label>重量 kg</label><input type="number" id="inp-weight" min="0" step="0.5" placeholder="60" inputmode="decimal"></div>
@@ -154,9 +120,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
           <div class="field"><label>組數</label><input type="number" id="inp-sets" min="1" placeholder="1" value="1" inputmode="numeric"></div>
         </div>
       </div>
-
-      <!-- Chin-up -->
-      <div id="chinup-area" style="display:none;">
+      <div id="chinup-area" style="display:none">
         <div class="field">
           <label>彈力繩粗度（數字越大輔助越強）</label>
           <div class="band-row" id="band-btns">
@@ -171,23 +135,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
           <div class="field"><label>組數</label><input type="number" id="inp-sets-chinup" min="1" placeholder="1" value="1" inputmode="numeric"></div>
         </div>
       </div>
-
       <button class="btn-primary" onclick="addEntry()">新增這組</button>
       <div class="btn-row">
         <button class="btn-secondary" onclick="addQuick()">複製上一筆</button>
       </div>
+      <div id="add-msg" style="font-size:13px;margin-top:8px;min-height:20px"></div>
     </div>
-
     <div class="card">
       <div class="card-title">今日紀錄</div>
-      <div id="today-list"><div class="empty">今天還沒有紀錄</div></div>
+      <div id="today-list"><div style="text-align:center;padding:24px;color:#8e8e93;font-size:14px">今天還沒有紀錄</div></div>
     </div>
   </div>
 
   <!-- 歷史 -->
   <div class="section" id="tab-history">
     <div class="page-title">歷史紀錄</div>
-    <div class="filter-scroll" id="filter-row">
+    <div class="filter-scroll">
       <span class="filter-pill active" onclick="filterHistory('all',this)">全部</span>
       <span class="filter-pill" onclick="filterHistory('chest',this)">胸/推</span>
       <span class="filter-pill" onclick="filterHistory('back',this)">背/拉</span>
@@ -196,7 +159,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
       <span class="filter-pill" onclick="filterHistory('core',this)">核心</span>
       <span class="filter-pill" onclick="filterHistory('cardio',this)">有氧</span>
     </div>
-    <div class="card"><div id="history-list"><div class="empty">還沒有任何紀錄</div></div></div>
+    <div class="card"><div id="history-list"><div style="text-align:center;padding:24px;color:#8e8e93;font-size:14px">還沒有任何紀錄</div></div></div>
     <div class="btn-row">
       <button class="btn-secondary" onclick="exportCSV()">匯出 CSV</button>
       <button class="btn-secondary" onclick="exportJSON()">匯出 JSON</button>
@@ -206,14 +169,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
   <!-- 分析 -->
   <div class="section" id="tab-analysis">
     <div class="page-title">分析圖表</div>
-
-    <!-- 時間範圍切換 -->
-    <div style="display:flex;gap:8px;margin-bottom:16px;">
+    <div style="display:flex;gap:8px;margin-bottom:16px">
       <button class="period-btn active" onclick="setPeriod(8,this)">最近 8 天</button>
       <button class="period-btn" onclick="setPeriod(28,this)">最近 28 天</button>
       <button class="period-btn" onclick="setPeriod(0,this)">全部</button>
     </div>
-
     <div class="metrics-grid">
       <div class="metric-card"><div class="metric-val" id="m-total">0</div><div class="metric-lbl">期間組數</div></div>
       <div class="metric-card"><div class="metric-val" id="m-week">0</div><div class="metric-lbl">期間天數</div></div>
@@ -221,44 +181,39 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
     </div>
     <div class="card">
       <div class="card-title">重量進步趨勢</div>
-      <div class="field">
-        <select id="trend-select" onchange="renderTrend()"></select>
-      </div>
+      <div class="field"><select id="trend-select" onchange="renderTrend()"></select></div>
       <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
     </div>
     <div class="card">
       <div class="card-title">訓練量分佈</div>
-      <div class="chart-wrap" style="height:200px;"><canvas id="distChart"></canvas></div>
+      <div class="chart-wrap" style="height:200px"><canvas id="distChart"></canvas></div>
     </div>
-    <div class="card" id="ai-card">
+    <div class="card">
       <div class="card-title">AI 訓練分析</div>
-      <div id="ai-result" style="font-size:14px;line-height:1.8;color:#1c1c1e;white-space:pre-wrap;display:none;margin-bottom:12px;"></div>
-      <button class="btn-primary" id="ai-btn" onclick="runAIAnalysis()" style="background:#5856d6;">開始分析我的訓練</button>
-      <div id="ai-status" style="font-size:13px;color:#8e8e93;margin-top:8px;min-height:18px;"></div>
+      <div id="ai-result" style="font-size:14px;line-height:1.8;color:#1c1c1e;white-space:pre-wrap;display:none;margin-bottom:12px"></div>
+      <button class="btn-primary" id="ai-btn" onclick="runAIAnalysis()" style="background:#5856d6">開始 AI 分析</button>
+      <div id="ai-status" style="font-size:13px;color:#8e8e93;margin-top:8px;min-height:18px"></div>
     </div>
   </div>
 
-  <!-- Sheets 同步 -->
+  <!-- 同步 -->
   <div class="section" id="tab-sheets">
     <div class="page-title">Google Sheets 同步</div>
-
     <div class="sheets-step">
       <h3>步驟一：建立 Google Sheets</h3>
       <ol>
-        <li>開啟 <a href="https://sheets.new" target="_blank">sheets.new</a> 建立新表格</li>
+        <li>開啟 <a href="https://sheets.new" target="_blank" style="color:#007aff">sheets.new</a> 建立新表格</li>
         <li>第一列填入標題：<code>日期</code> <code>肌群</code> <code>動作</code> <code>組次</code> <code>重量</code> <code>次數</code></li>
-        <li>記下試算表網址中的 ID（網址 <code>/d/</code> 後面那段）</li>
       </ol>
     </div>
-
     <div class="sheets-step">
       <h3>步驟二：建立 Apps Script</h3>
       <ol>
         <li>在試算表中點「擴充功能」→「Apps Script」</li>
-        <li>貼上以下程式碼並儲存：</li>
+        <li>貼上以下程式碼並儲存，然後部署為網頁應用程式，存取權設為「任何人」</li>
       </ol>
-      <div style="background:#f2f2f7;border-radius:8px;padding:12px;margin-top:10px;overflow-x:auto;">
-        <pre style="font-size:12px;line-height:1.5;font-family:monospace;white-space:pre-wrap;">function doPost(e) {
+      <div style="background:#f2f2f7;border-radius:8px;padding:12px;margin-top:10px;overflow-x:auto">
+        <pre style="font-size:12px;line-height:1.5;font-family:monospace;white-space:pre-wrap">function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var rows = JSON.parse(e.postData.contents);
   rows.forEach(function(r){ sheet.appendRow(r); });
@@ -270,32 +225,33 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
 function doGet(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var rows = sheet.getDataRange().getValues();
-  rows.shift(); // 移除標題列
+  rows.shift();
   return ContentService.createTextOutput(
     JSON.stringify({status:'ok', rows:rows})
   ).setMimeType(ContentService.MimeType.JSON);
 }</pre>
       </div>
-      <ol start="3" style="margin-top:10px;">
-        <li>點「部署」→「新增部署作業」</li>
-        <li>類型選「網頁應用程式」，存取權設為「任何人」</li>
-        <li>複製產生的網址（Web App URL）</li>
-      </ol>
-      <p style="margin-top:10px;font-size:13px;color:#8e8e93;">⚠️ 如果之前已部署過，請點「部署」→「管理部署作業」→ 選現有部署 → 編輯 → 版本選「新版本」→ 部署。URL 不會改變。</p>
+      <p style="margin-top:10px;font-size:13px;color:#8e8e93">⚠️ 已部署過請點「部署」→「管理部署作業」→ 編輯 → 版本選「新版本」→ 部署，URL 不變。</p>
     </div>
-
+    <div class="sheets-step">
+      <h3>步驟三：貼上 Web App URL</h3>
+      <div class="url-input-row">
+        <input type="url" id="sheets-url" placeholder="https://script.google.com/macros/s/...">
+        <button class="btn-secondary" onclick="saveSheetUrl()">儲存</button>
+      </div>
+      <div class="sync-status" id="sync-status"></div>
+    </div>
     <div class="sheets-step">
       <h3>上傳：手機 → Sheets</h3>
-      <p style="margin-bottom:12px;">只會上傳尚未同步過的新紀錄，不會重複。</p>
+      <p style="margin-bottom:12px">只上傳尚未同步過的新紀錄，不重複。</p>
       <button class="btn-primary" onclick="syncToSheets()">同步新紀錄到 Sheets</button>
-      <button class="btn-secondary" style="width:100%;margin-top:8px;" onclick="resetSyncState()">重置同步狀態（下次全部重新上傳）</button>
+      <button class="btn-secondary" style="width:100%;margin-top:8px" onclick="resetSyncState()">重置同步狀態</button>
       <div class="sync-status" id="sync-result"></div>
     </div>
-
     <div class="sheets-step">
       <h3>下載：Sheets → 手機</h3>
-      <p style="margin-bottom:12px;">從 Google Sheets 讀回資料，只匯入手機內還沒有的紀錄（以日期＋動作＋組次為判斷依據），不會覆蓋現有資料。</p>
-      <button class="btn-primary" style="background:#34c759;" onclick="importFromSheets()">從 Sheets 匯入新紀錄</button>
+      <p style="margin-bottom:12px">只匯入手機內還沒有的紀錄，不覆蓋現有資料。</p>
+      <button class="btn-primary" style="background:#34c759" onclick="importFromSheets()">從 Sheets 匯入新紀錄</button>
       <div class="sync-status" id="import-result"></div>
     </div>
   </div>
@@ -303,42 +259,38 @@ function doGet(e) {
   <!-- 設定 -->
   <div class="section" id="tab-settings">
     <div class="page-title">設定</div>
-
     <div class="card">
       <div class="card-title">Claude API 設定</div>
       <div class="field">
         <label>API Key（從 console.anthropic.com 取得）</label>
         <input type="password" id="cfg-apikey" placeholder="sk-ant-...">
       </div>
-      <button class="btn-primary" onclick="saveSettings()" style="margin-top:4px;">儲存設定</button>
-      <div id="cfg-status" style="font-size:13px;margin-top:8px;min-height:18px;"></div>
+      <button class="btn-primary" onclick="saveSettings()" style="margin-top:4px">儲存設定</button>
+      <div id="cfg-status" style="font-size:13px;margin-top:8px;min-height:18px"></div>
     </div>
-
     <div class="card">
       <div class="card-title">知識庫（Google Docs）</div>
-      <p style="font-size:13px;color:#8e8e93;margin-bottom:12px;">將你信任的訓練資料整理成 Google Doc，設為「知道連結的人都可以檢視」後貼上連結。每次 AI 分析時會自動讀取最新內容。</p>
+      <p style="font-size:13px;color:#8e8e93;margin-bottom:12px">將信任的訓練資料整理成 Google Doc，設為「知道連結的人都可以檢視」後貼上連結。每次 AI 分析時自動讀取最新內容。</p>
       <div id="doc-list"></div>
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <input type="url" id="cfg-docurl" placeholder="https://docs.google.com/document/d/..." style="flex:1;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;">
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <input type="url" id="cfg-docurl" placeholder="https://docs.google.com/document/d/..." style="flex:1;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px">
         <button class="btn-secondary" onclick="addDoc()">新增</button>
       </div>
-      <div id="doc-status" style="font-size:13px;color:#8e8e93;margin-top:8px;"></div>
+      <div id="doc-status" style="font-size:13px;color:#8e8e93;margin-top:8px"></div>
     </div>
-
     <div class="card">
       <div class="card-title">使用說明</div>
-      <ol style="font-size:13px;color:#3a3a3c;line-height:2;padding-left:18px;">
-        <li>到 <a href="https://console.anthropic.com" target="_blank" style="color:#007aff;">console.anthropic.com</a> 註冊並取得 API Key</li>
-        <li>加值最低  美元（約台幣 160 元）</li>
+      <ol style="font-size:13px;color:#3a3a3c;line-height:2;padding-left:18px">
+        <li>到 <a href="https://console.anthropic.com" target="_blank" style="color:#007aff">console.anthropic.com</a> 註冊並取得 API Key</li>
+        <li>加值最低 $5 美元（約台幣 160 元）</li>
         <li>建立 Google Doc，整理你信任的訓練知識</li>
         <li>將 Doc 設為「知道連結的人都可以檢視」</li>
-        <li>貼上連結並儲存，之後在分析頁面點「開始分析」即可</li>
+        <li>貼上連結並儲存，在分析頁面點「開始 AI 分析」即可</li>
       </ol>
     </div>
   </div>
 
   <!-- Tab bar -->
-
   <div class="tabbar">
     <div class="tabbar-inner">
       <button class="tab-btn active" onclick="showTab('record',this)"><span class="tab-icon">💪</span>記錄</button>
@@ -348,60 +300,35 @@ function doGet(e) {
       <button class="tab-btn" onclick="showTab('settings',this)"><span class="tab-icon">⚙️</span>設定</button>
     </div>
   </div>
-</div>
 
+</div>
 <div id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const DEFAULT_EXERCISES = {
-  chest:['Bench Press','Overhead Press','Incline Dumbbell Press'],
-  back:['Chin-up','Rowing'],
-  legs:['Deadlift','Squat'],
-  arms:['Biceps Curl','Triceps Reverse Pull'],
-  core:['Plank','Crunch'],
-  cardio:['跑步','跳繩']
-};
-const groupNames = {chest:'胸/推',back:'背/拉',legs:'腿',arms:'手臂',core:'核心',cardio:'有氧'};
-const groupColors = {chest:'#1565c0',back:'#2e7d32',legs:'#e65100',arms:'#6a1b9a',core:'#880e4f',cardio:'#bf360c'};
+const DEFAULT_EXERCISES={chest:['Bench Press','Overhead Press','Incline Dumbbell Press'],back:['Chin-up','Rowing'],legs:['Deadlift','Squat'],arms:['Biceps Curl','Triceps Reverse Pull'],core:['Plank','Crunch'],cardio:['跑步','跳繩']};
+const groupNames={chest:'胸/推',back:'背/拉',legs:'腿',arms:'手臂',core:'核心',cardio:'有氧'};
+const groupColors={chest:'#1565c0',back:'#2e7d32',legs:'#e65100',arms:'#6a1b9a',core:'#880e4f',cardio:'#bf360c'};
 
-let data = [], customExercises = {}, selectedBand = null, histFilter = 'all';
-let trendChart = null, distChart = null;
-let analysisDays = 8; // default: last 8 days
+let data=[],customExercises={},selectedBand=null,histFilter='all',analysisDays=8;
+let trendChart=null,distChart=null;
 
-function setPeriod(days, btn) {
-  analysisDays = days;
-  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderMetrics(); renderTrend(); renderDist();
-}
-
-function periodStart() {
-  if (analysisDays === 0) return '';
-  const d = new Date(); d.setDate(d.getDate() - (analysisDays - 1));
-  return d.toISOString().slice(0,10);
-}
-
-function filteredData() {
-  const start = periodStart();
-  return start ? data.filter(x => x.date >= start) : data;
-}
-
-function ls(k,v){ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }
+function ls(k,v){if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}
 function loadStorage(){
-  try{data=JSON.parse(ls('wd_data')||'[]');}catch(e){data=[];}
-  try{customExercises=JSON.parse(ls('wd_custom')||'{}');}catch(e){customExercises={};}
-  const url=ls('wd_sheets_url'); if(url) document.getElementById('sheets-url').value=url;
+  try{data=JSON.parse(ls('wd_data')||'[]')}catch(e){data=[]}
+  try{customExercises=JSON.parse(ls('wd_custom')||'{}')}catch(e){customExercises={}}
+  const url=ls('wd_sheets_url');if(url)document.getElementById('sheets-url').value=url;
+  const key=ls('wd_apikey');if(key)document.getElementById('cfg-apikey').value=key;
 }
-function save(){ ls('wd_data',JSON.stringify(data)); }
-function saveCustom(){ ls('wd_custom',JSON.stringify(customExercises)); }
-function todayStr(){ return new Date().toISOString().slice(0,10); }
-function getExercises(g){ return [...(DEFAULT_EXERCISES[g]||[]),...(customExercises[g]||[])]; }
+function save(){ls('wd_data',JSON.stringify(data))}
+function saveCustom(){ls('wd_custom',JSON.stringify(customExercises))}
+function todayStr(){return new Date().toISOString().slice(0,10)}
+function getExercises(g){return[...(DEFAULT_EXERCISES[g]||[]),...(customExercises[g]||[])]}
 
 function toast(msg,err){
   const el=document.getElementById('toast');
-  el.textContent=msg; el.style.background=err?'rgba(255,59,48,0.85)':'rgba(0,0,0,0.75)';
-  el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2200);
+  el.textContent=msg;el.style.background=err?'rgba(255,59,48,0.85)':'rgba(0,0,0,0.75)';
+  el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)
 }
 
 function initForm(){
@@ -412,20 +339,20 @@ function initForm(){
 function rebuildExerciseSelect(){
   const g=document.getElementById('inp-group').value;
   const sel=document.getElementById('inp-exercise-select');
-  sel.innerHTML=getExercises(g).map(e=>`<option value="${e}">${e}</option>`).join('')
-    +'<option value="__new__">＋ 新增動作</option>';
+  sel.innerHTML=getExercises(g).map(e=>`<option value="${e}">${e}</option>`).join('')+'<option value="__new__">＋ 新增動作</option>';
   refreshExerciseUI();
 }
 
-function onGroupChange(){ selectedBand=null; rebuildExerciseSelect(); }
-function onExerciseChange(){ refreshExerciseUI(); }
+function onGroupChange(){selectedBand=null;rebuildExerciseSelect()}
+function onExerciseChange(){refreshExerciseUI()}
+
 function refreshExerciseUI(){
   const val=document.getElementById('inp-exercise-select').value;
-  const isChinup=val==='Chin-up', isNew=val==='__new__';
+  const isChinup=val==='Chin-up',isNew=val==='__new__';
   document.getElementById('new-move-area').style.display=isNew?'block':'none';
   document.getElementById('weight-area').style.display=isChinup?'none':'block';
   document.getElementById('chinup-area').style.display=isChinup?'block':'none';
-  if(isChinup){selectedBand=null;document.querySelectorAll('#band-btns .band-btn').forEach(b=>b.classList.remove('selected'));}
+  if(isChinup){selectedBand=null;document.querySelectorAll('#band-btns .band-btn').forEach(b=>b.classList.remove('selected'))}
 }
 
 function selectBand(n,btn){
@@ -437,55 +364,50 @@ function selectBand(n,btn){
 function saveNewMovement(){
   const g=document.getElementById('inp-group').value;
   const name=document.getElementById('inp-new-exercise').value.trim();
-  if(!name){toast('請輸入動作名稱',true);return;}
-  if(!customExercises[g]) customExercises[g]=[];
-  if(getExercises(g).includes(name)){toast('此動作已存在',true);return;}
-  customExercises[g].push(name); saveCustom();
+  if(!name){toast('請輸入動作名稱',true);return}
+  if(!customExercises[g])customExercises[g]=[];
+  if(getExercises(g).includes(name)){toast('此動作已存在',true);return}
+  customExercises[g].push(name);saveCustom();
   rebuildExerciseSelect();
   document.getElementById('inp-exercise-select').value=name;
   document.getElementById('inp-new-exercise').value='';
-  refreshExerciseUI(); toast('已新增：'+name);
+  refreshExerciseUI();toast('已新增動作：'+name);
 }
 
 function addEntry(){
   const d=document.getElementById('inp-date').value;
   const g=document.getElementById('inp-group').value;
   const exSel=document.getElementById('inp-exercise-select').value;
-  if(!d){toast('請選擇日期',true);return;}
-  if(exSel==='__new__'){toast('請先儲存新動作',true);return;}
+  if(!d){toast('請選擇日期',true);return}
+  if(exSel==='__new__'){toast('請先儲存新動作',true);return}
   const isChinup=exSel==='Chin-up';
   let weight,reps,sets;
   if(isChinup){
-    if(!selectedBand){toast('請選擇彈力繩粗度',true);return;}
+    if(!selectedBand){toast('請選擇彈力繩粗度',true);return}
     weight=selectedBand;
     reps=parseInt(document.getElementById('inp-reps-chinup').value);
     sets=parseInt(document.getElementById('inp-sets-chinup').value)||1;
-    if(!reps||reps<1){toast('請輸入次數',true);return;}
-  } else {
+    if(!reps||reps<1){toast('請輸入次數',true);return}
+  }else{
     weight=parseFloat(document.getElementById('inp-weight').value);
-    if(isNaN(weight)||weight<0){toast('請輸入重量',true);return;}
+    if(isNaN(weight)||weight<0){toast('請輸入重量',true);return}
     reps=parseInt(document.getElementById('inp-reps').value);
-    if(!reps||reps<1){toast('請輸入次數',true);return;}
+    if(!reps||reps<1){toast('請輸入次數',true);return}
     sets=parseInt(document.getElementById('inp-sets').value)||1;
   }
   const newSets=Array.from({length:sets},()=>({weight,reps}));
   const existing=data.find(x=>x.date===d&&x.exercise===exSel);
-  if(existing){ existing.sets.push(...newSets); }
-  else { data.push({id:Date.now(),date:d,group:g,exercise:exSel,isChinup,sets:newSets}); }
-  save(); render();
+  if(existing){existing.sets.push(...newSets)}
+  else{data.push({id:Date.now(),date:d,group:g,exercise:exSel,isChinup,sets:newSets})}
+  save();render();
   const lbl=isChinup?`彈力繩${weight}×${reps}次×${sets}組`:`${weight}kg×${reps}次×${sets}組`;
   toast('已新增 '+exSel+' '+lbl);
-  if(isChinup){
-    document.getElementById('inp-reps-chinup').value='';
-    document.getElementById('inp-sets-chinup').value='1';
-  } else {
-    document.getElementById('inp-reps').value='';
-    document.getElementById('inp-sets').value='1';
-  }
+  if(isChinup){document.getElementById('inp-reps-chinup').value='';document.getElementById('inp-sets-chinup').value='1'}
+  else{document.getElementById('inp-reps').value='';document.getElementById('inp-sets').value='1'}
 }
 
 function addQuick(){
-  if(!data.length){toast('還沒有紀錄可複製',true);return;}
+  if(!data.length){toast('還沒有紀錄可複製',true);return}
   const last=data[data.length-1];
   const lastSet=last.sets[last.sets.length-1];
   document.getElementById('inp-group').value=last.group;
@@ -494,10 +416,10 @@ function addQuick(){
   refreshExerciseUI();
   if(last.isChinup){
     selectedBand=lastSet.weight;
-    document.querySelectorAll('#band-btns .band-btn').forEach(b=>{if(parseInt(b.textContent)===lastSet.weight)b.classList.add('selected');});
+    document.querySelectorAll('#band-btns .band-btn').forEach(b=>{if(parseInt(b.textContent)===lastSet.weight)b.classList.add('selected')});
     document.getElementById('inp-reps-chinup').value=lastSet.reps;
     document.getElementById('inp-sets-chinup').value='1';
-  } else {
+  }else{
     document.getElementById('inp-weight').value=lastSet.weight;
     document.getElementById('inp-reps').value=lastSet.reps;
     document.getElementById('inp-sets').value='1';
@@ -509,8 +431,8 @@ function deleteSet(entryId,idx){
   const entry=data.find(x=>x.id===entryId);
   if(!entry)return;
   entry.sets.splice(idx,1);
-  if(!entry.sets.length) data=data.filter(x=>x.id!==entryId);
-  save(); render();
+  if(!entry.sets.length)data=data.filter(x=>x.id!==entryId);
+  save();render();
 }
 
 function buildEntryHTML(entry,showDate){
@@ -518,51 +440,64 @@ function buildEntryHTML(entry,showDate){
     const lbl=entry.isChinup?`彈力繩${s.weight}×${s.reps}次`:`${s.weight}kg×${s.reps}次`;
     return `<span class="chip">${lbl}<button class="chip-del" onclick="deleteSet(${entry.id},${i})">✕</button></span>`;
   }).join('');
-  const datePart=showDate?`<span class="log-date-label">${entry.date}</span>`:'';
+  const datePart=showDate?`<span class="log-meta">${entry.date}</span>`:'';
   return `<div class="log-item">
     <div class="log-top">
       <span class="log-name">${entry.exercise}<span class="badge badge-${entry.group}">${groupNames[entry.group]}</span></span>
-      <div class="log-right">${datePart}<span class="log-sets-count">${entry.sets.length}組</span></div>
+      <div class="log-right">${datePart}<span class="log-meta">${entry.sets.length}組</span></div>
     </div>
     <div class="sets-chips">${chips}</div>
   </div>`;
 }
 
 function renderToday(){
-  const t=todayStr();
-  const items=data.filter(x=>x.date===t);
+  const t=todayStr(),items=data.filter(x=>x.date===t);
   const el=document.getElementById('today-list');
-  el.innerHTML=items.length?items.map(e=>buildEntryHTML(e,false)).join(''):'<div class="empty">今天還沒有紀錄</div>';
+  el.innerHTML=items.length?items.map(e=>buildEntryHTML(e,false)).join(''):'<div style="text-align:center;padding:24px;color:#8e8e93;font-size:14px">今天還沒有紀錄</div>';
 }
 
 function filterHistory(f,el){
   histFilter=f;
   document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active'); renderHistory();
+  el.classList.add('active');renderHistory();
 }
 
 function renderHistory(){
   const filtered=histFilter==='all'?data:data.filter(x=>x.group===histFilter);
   const el=document.getElementById('history-list');
-  if(!filtered.length){el.innerHTML='<div class="empty">沒有符合的紀錄</div>';return;}
+  if(!filtered.length){el.innerHTML='<div style="text-align:center;padding:24px;color:#8e8e93;font-size:14px">沒有符合的紀錄</div>';return}
   const sorted=[...filtered].sort((a,b)=>b.date.localeCompare(a.date));
   let html='',lastDate='';
   for(const e of sorted){
-    if(e.date!==lastDate){
-      html+=`<div class="date-sep">${e.date}</div>`;
-      lastDate=e.date;
-    }
+    if(e.date!==lastDate){html+=`<div class="date-sep">${e.date}</div>`;lastDate=e.date}
     html+=buildEntryHTML(e,false);
   }
   el.innerHTML=html;
 }
 
+function setPeriod(days,btn){
+  analysisDays=days;
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMetrics();renderTrend();renderDist();
+}
+
+function periodStart(){
+  if(analysisDays===0)return'';
+  const d=new Date();d.setDate(d.getDate()-(analysisDays-1));return d.toISOString().slice(0,10);
+}
+
+function filteredData(){
+  const start=periodStart();
+  return start?data.filter(x=>x.date>=start):data;
+}
+
 function renderMetrics(){
-  const fd = filteredData();
-  document.getElementById('m-total').textContent = fd.reduce((s,x)=>s+x.sets.length, 0);
-  document.getElementById('m-week').textContent = new Set(fd.map(x=>x.date)).size;
-  let mx=0; fd.forEach(x=>{if(!x.isChinup)x.sets.forEach(s=>{if(s.weight>mx)mx=s.weight;});});
-  document.getElementById('m-max').textContent = mx;
+  const fd=filteredData();
+  document.getElementById('m-total').textContent=fd.reduce((s,x)=>s+x.sets.length,0);
+  document.getElementById('m-week').textContent=new Set(fd.map(x=>x.date)).size;
+  let mx=0;fd.forEach(x=>{if(!x.isChinup)x.sets.forEach(s=>{if(s.weight>mx)mx=s.weight})});
+  document.getElementById('m-max').textContent=mx;
 }
 
 function renderTrendSelect(){
@@ -578,72 +513,60 @@ function renderTrend(){
   const items=filteredData().filter(x=>x.exercise===sel).sort((a,b)=>a.date.localeCompare(b.date));
   const isChinup=items.length&&items[0].isChinup;
   const ctx=document.getElementById('trendChart').getContext('2d');
-  if(trendChart){trendChart.destroy();trendChart=null;}
-  trendChart=new Chart(ctx,{
-    type:'line',
-    data:{labels:items.map(x=>x.date.slice(5)),datasets:[{data:items.map(x=>Math.max(...x.sets.map(s=>s.weight))),borderColor:'#007aff',backgroundColor:'rgba(0,122,255,0.08)',tension:0.3,pointRadius:5,pointBackgroundColor:'#007aff'}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,ticks:{callback:v=>isChinup?'繩'+v:v+'kg'}}}}
-  });
+  if(trendChart){trendChart.destroy();trendChart=null}
+  trendChart=new Chart(ctx,{type:'line',data:{labels:items.map(x=>x.date.slice(5)),datasets:[{data:items.map(x=>Math.max(...x.sets.map(s=>s.weight))),borderColor:'#007aff',backgroundColor:'rgba(0,122,255,0.08)',tension:0.3,pointRadius:5,pointBackgroundColor:'#007aff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,ticks:{callback:v=>isChinup?'繩'+v:v+'kg'}}}}});
 }
 
 function renderDist(){
-  const counts={};
-  Object.keys(groupNames).forEach(k=>counts[k]=0);
+  const counts={};Object.keys(groupNames).forEach(k=>counts[k]=0);
   filteredData().forEach(x=>counts[x.group]=(counts[x.group]||0)+x.sets.length);
   const ctx=document.getElementById('distChart').getContext('2d');
-  if(distChart){distChart.destroy();distChart=null;}
-  distChart=new Chart(ctx,{
-    type:'bar',
-    data:{labels:Object.values(groupNames),datasets:[{data:Object.keys(groupNames).map(k=>counts[k]),backgroundColor:Object.keys(groupNames).map(k=>groupColors[k]),borderRadius:6}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
-  });
+  if(distChart){distChart.destroy();distChart=null}
+  distChart=new Chart(ctx,{type:'bar',data:{labels:Object.values(groupNames),datasets:[{data:Object.keys(groupNames).map(k=>counts[k]),backgroundColor:Object.keys(groupNames).map(k=>groupColors[k]),borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}});
 }
 
-function openAI(){
-  window.open('https://claude.ai','_blank');
+function render(){renderToday();renderHistory();renderMetrics();renderTrendSelect();renderTrend();renderDist()}
+
+function showTab(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='analysis'){renderMetrics();renderTrendSelect();renderTrend();renderDist()}
+  if(id==='settings'){renderDocList()}
 }
 
-// Export
+// ── Export ─────────────────────────────────────────────
 function exportCSV(){
-  if(!data.length){toast('沒有資料可匯出',true);return;}
+  if(!data.length){toast('沒有資料可匯出',true);return}
   const rows=['\uFEFF日期,肌群,動作,組次,重量/彈力繩,次數'];
   data.forEach(x=>x.sets.forEach((s,i)=>rows.push(`${x.date},${groupNames[x.group]},${x.exercise},第${i+1}組,${x.isChinup?'彈力繩'+s.weight:s.weight+'kg'},${s.reps}`)));
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('\n'));
-  a.download='workout_'+todayStr()+'.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('\n'));a.download='workout_'+todayStr()+'.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
   toast('CSV 已下載');
 }
 
 function exportJSON(){
-  if(!data.length){toast('沒有資料可匯出',true);return;}
-  const a=document.createElement('a');
-  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
-  a.download='workout_'+todayStr()+'.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  if(!data.length){toast('沒有資料可匯出',true);return}
+  const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));a.download='workout_'+todayStr()+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);
   toast('JSON 已下載');
 }
 
-// Google Sheets sync
+// ── Google Sheets ───────────────────────────────────────
 function saveSheetUrl(){
   const url=document.getElementById('sheets-url').value.trim();
-  if(!url){toast('請貼上 Web App URL',true);return;}
+  if(!url){toast('請貼上 Web App URL',true);return}
   ls('wd_sheets_url',url);
-  document.getElementById('sync-status').textContent='✓ URL 已儲存';
-  document.getElementById('sync-status').className='sync-status sync-ok';
+  const el=document.getElementById('sync-status');el.textContent='✓ URL 已儲存';el.className='sync-status sync-ok';
   toast('URL 已儲存');
 }
 
 async function syncToSheets(){
   const url=ls('wd_sheets_url');
-  if(!url){toast('請先設定 Google Sheets URL',true);return;}
-  if(!data.length){toast('沒有資料可同步',true);return;}
+  if(!url){toast('請先設定 Google Sheets URL',true);return}
+  if(!data.length){toast('沒有資料可同步',true);return}
   const el=document.getElementById('sync-result');
-
-  // Load set of already-synced entry+set IDs: "entryId:setIndex"
-  let synced;
-  try { synced=new Set(JSON.parse(ls('wd_synced')||'[]')); } catch(e){ synced=new Set(); }
-
-  // Build only rows not yet synced
-  const rows=[], newKeys=[];
+  let synced;try{synced=new Set(JSON.parse(ls('wd_synced')||'[]'))}catch(e){synced=new Set()}
+  const rows=[],newKeys=[];
   data.forEach(x=>x.sets.forEach((s,i)=>{
     const key=`${x.id}:${i}`;
     if(!synced.has(key)){
@@ -651,219 +574,135 @@ async function syncToSheets(){
       newKeys.push(key);
     }
   }));
-
-  if(!rows.length){
-    el.textContent='✓ 沒有新紀錄，全部已同步過了'; el.className='sync-status sync-ok';
-    toast('已是最新，無需同步');
-    return;
-  }
-
-  el.textContent=`同步中（${rows.length} 筆新紀錄）...`; el.className='sync-status';
-
-  try {
+  if(!rows.length){el.textContent='✓ 沒有新紀錄，全部已同步';el.className='sync-status sync-ok';toast('已是最新');return}
+  el.textContent=`同步中（${rows.length} 筆）...`;el.className='sync-status';
+  try{
     const res=await fetch(url,{method:'POST',body:JSON.stringify(rows)});
     const json=await res.json();
-    // Mark these keys as synced
-    newKeys.forEach(k=>synced.add(k));
-    ls('wd_synced',JSON.stringify([...synced]));
-    el.textContent=`✓ 成功同步 ${json.added} 筆新資料！`; el.className='sync-status sync-ok';
-    toast('同步成功！');
-  } catch(e) {
-    el.textContent='✗ 同步失敗，請確認 URL 是否正確'; el.className='sync-status sync-err';
-    toast('同步失敗',true);
-  }
+    newKeys.forEach(k=>synced.add(k));ls('wd_synced',JSON.stringify([...synced]));
+    el.textContent=`✓ 成功同步 ${json.added} 筆！`;el.className='sync-status sync-ok';toast('同步成功！');
+  }catch(e){el.textContent='✗ 同步失敗，請確認 URL';el.className='sync-status sync-err';toast('同步失敗',true)}
 }
 
 function resetSyncState(){
   ls('wd_synced','[]');
-  const el=document.getElementById('sync-result');
-  el.textContent='✓ 已重置，下次同步將上傳所有紀錄'; el.className='sync-status sync-ok';
+  const el=document.getElementById('sync-result');el.textContent='✓ 已重置，下次將上傳所有紀錄';el.className='sync-status sync-ok';
   toast('同步狀態已重置');
+}
+
+function normaliseDate(raw){
+  if(!raw)return'';
+  const s=String(raw);
+  if(s.includes('T')){
+    const d=new Date(s);
+    const local=new Date(d.getTime()+8*60*60*1000);
+    return local.toISOString().slice(0,10);
+  }
+  return s.trim().slice(0,10);
 }
 
 async function importFromSheets(){
   const url=ls('wd_sheets_url');
-  if(!url){toast('請先設定 Google Sheets URL',true);return;}
-  const el=document.getElementById('import-result');
-  el.textContent='讀取中...'; el.className='sync-status';
-
-  try {
-    // doGet via no-cors-friendly redirect — append ?action=get
+  if(!url){toast('請先設定 Google Sheets URL',true);return}
+  const el=document.getElementById('import-result');el.textContent='讀取中...';el.className='sync-status';
+  try{
     const res=await fetch(url+'?action=get');
     const json=await res.json();
-    if(!json.rows||!json.rows.length){
-      el.textContent='Sheets 內沒有資料'; el.className='sync-status';
-      return;
-    }
-
-    // Build a lookup of existing sets: "date|exercise|setIndex"
-    // setIndex = how many sets of that exercise already exist on that date (0-based)
+    if(!json.rows||!json.rows.length){el.textContent='Sheets 內沒有資料';el.className='sync-status';return}
     const existingKeys=new Set();
-    data.forEach(x=>{
-      x.sets.forEach((s,i)=>existingKeys.add(`${x.date}|${x.exercise}|${i}`));
-    });
-
-    // Parse Sheets rows: [日期, 肌群, 動作, 組次(第N組), 重量, 次數]
-    // Group by date+exercise, track set index per group
-    const sheetsCounter={};
-    let imported=0;
-
+    data.forEach(x=>x.sets.forEach((s,i)=>existingKeys.add(`${x.date}|${x.exercise}|${i}`)));
+    const sheetsCounter={};let imported=0;
     json.rows.forEach(r=>{
-      // FIX: normalise date — Sheets may return ISO timestamp or plain date string
-      const rawDate=r[0];
-      let date;
-      if(rawDate instanceof Date || (typeof rawDate==='string' && rawDate.includes('T'))) {
-        // Parse and convert to local YYYY-MM-DD using UTC+8 offset
-        const d=new Date(rawDate);
-        const local=new Date(d.getTime() + 8*60*60*1000);
-        date=local.toISOString().slice(0,10);
-      } else {
-        date=String(rawDate).trim().slice(0,10);
-      }
-
+      const date=normaliseDate(r[0]);
       const exercise=String(r[2]).trim();
       const rawWeight=String(r[4]).trim();
       const reps=parseInt(r[5]);
-      if(!date||!exercise||isNaN(reps)) return;
-
+      if(!date||!exercise||isNaN(reps))return;
       const isChinup=exercise==='Chin-up';
       const weight=isChinup?parseInt(rawWeight.replace(/[^0-9]/g,'')):parseFloat(rawWeight);
-      if(isNaN(weight)) return;
-
-      const gKey=;
-      if(!sheetsCounter[gKey]) sheetsCounter[gKey]=0;
+      if(isNaN(weight))return;
+      const gKey=`${date}|${exercise}`;
+      if(!sheetsCounter[gKey])sheetsCounter[gKey]=0;
       const setIdx=sheetsCounter[gKey]++;
-      const key=;
-      if(existingKeys.has(key)) return; // already on phone
-
-      // Find or create entry in local data
+      const key=`${date}|${exercise}|${setIdx}`;
+      if(existingKeys.has(key))return;
       let entry=data.find(x=>x.date===date&&x.exercise===exercise);
       if(!entry){
         const groupKey=Object.keys(groupNames).find(k=>groupNames[k]===String(r[1]).trim())||'chest';
         entry={id:Date.now()+Math.random(),date,group:groupKey,exercise,isChinup,sets:[]};
         data.push(entry);
       }
-      entry.sets.push({weight,reps});
-      existingKeys.add(key);
-      imported++;
+      entry.sets.push({weight,reps});existingKeys.add(key);imported++;
     });
-
-    save(); render();
-    if(imported>0){
-      el.textContent=`✓ 已匯入 ${imported} 筆新紀錄`; el.className='sync-status sync-ok';
-      toast(`匯入 ${imported} 筆新紀錄`);
-    } else {
-      el.textContent='✓ 沒有新紀錄，手機已是最新'; el.className='sync-status sync-ok';
-      toast('手機資料已是最新');
-    }
-  } catch(e){
-    el.textContent='✗ 讀取失敗，請確認 URL 及 Apps Script 已更新'; el.className='sync-status sync-err';
-    toast('讀取失敗',true);
-  }
+    save();render();
+    if(imported>0){el.textContent=`✓ 已匯入 ${imported} 筆新紀錄`;el.className='sync-status sync-ok';toast(`匯入 ${imported} 筆`)}
+    else{el.textContent='✓ 手機資料已是最新';el.className='sync-status sync-ok';toast('已是最新')}
+  }catch(e){el.textContent='✗ 讀取失敗，請確認 URL 及 Apps Script';el.className='sync-status sync-err';toast('讀取失敗',true)}
 }
 
-function render(){ renderToday(); renderHistory(); renderMetrics(); renderTrendSelect(); renderTrend(); renderDist(); }
-
-function showTab(id,btn){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  btn.classList.add('active');
-  if(id==='analysis'){renderMetrics();renderTrendSelect();renderTrend();renderDist();}
-  if(id==='settings'){renderDocList();}
-}
-
-// ── Settings ──────────────────────────────────────────────
+// ── Settings ────────────────────────────────────────────
 function saveSettings(){
   const key=document.getElementById('cfg-apikey').value.trim();
-  if(!key){toast('請輸入 API Key',true);return;}
+  if(!key){toast('請輸入 API Key',true);return}
   ls('wd_apikey',key);
-  const el=document.getElementById('cfg-status');
-  el.textContent='✓ 已儲存'; el.style.color='#34c759';
-  setTimeout(()=>el.textContent='',2000);
-  toast('API Key 已儲存');
+  const el=document.getElementById('cfg-status');el.textContent='✓ 已儲存';el.style.color='#34c759';
+  setTimeout(()=>el.textContent='',2000);toast('API Key 已儲存');
 }
+
+function extractDocId(url){const m=url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);return m?m[1]:null}
 
 function addDoc(){
   const url=document.getElementById('cfg-docurl').value.trim();
   const el=document.getElementById('doc-status');
-  if(!url||!url.includes('docs.google.com/document')){
-    el.textContent='請貼上正確的 Google Docs 網址'; el.style.color='#ff3b30'; return;
-  }
-  let docs=[];
-  try{docs=JSON.parse(ls('wd_docs')||'[]');}catch(e){}
-  if(docs.find(d=>d.url===url)){el.textContent='此文件已在清單中';el.style.color='#ff3b30';return;}
+  if(!url||!url.includes('docs.google.com/document')){el.textContent='請貼上正確的 Google Docs 網址';el.style.color='#ff3b30';return}
+  let docs=[];try{docs=JSON.parse(ls('wd_docs')||'[]')}catch(e){}
+  if(docs.find(d=>d.url===url)){el.textContent='此文件已在清單中';el.style.color='#ff3b30';return}
   const id=extractDocId(url);
-  if(!id){el.textContent='無法解析文件 ID，請確認網址格式';el.style.color='#ff3b30';return;}
-  docs.push({url,id,label:url.slice(0,60)+'...'});
-  ls('wd_docs',JSON.stringify(docs));
+  if(!id){el.textContent='無法解析文件 ID';el.style.color='#ff3b30';return}
+  docs.push({url,id,label:url.slice(0,55)+'...'});ls('wd_docs',JSON.stringify(docs));
   document.getElementById('cfg-docurl').value='';
-  el.textContent='✓ 已新增'; el.style.color='#34c759';
-  setTimeout(()=>el.textContent='',2000);
+  el.textContent='✓ 已新增';el.style.color='#34c759';setTimeout(()=>el.textContent='',2000);
   renderDocList();
-}
-
-function extractDocId(url){
-  const m=url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
-  return m?m[1]:null;
 }
 
 function removeDoc(idx){
-  let docs=[];
-  try{docs=JSON.parse(ls('wd_docs')||'[]');}catch(e){}
-  docs.splice(idx,1);
-  ls('wd_docs',JSON.stringify(docs));
-  renderDocList();
+  let docs=[];try{docs=JSON.parse(ls('wd_docs')||'[]')}catch(e){}
+  docs.splice(idx,1);ls('wd_docs',JSON.stringify(docs));renderDocList();
 }
 
 function renderDocList(){
-  let docs=[];
-  try{docs=JSON.parse(ls('wd_docs')||'[]');}catch(e){}
+  let docs=[];try{docs=JSON.parse(ls('wd_docs')||'[]')}catch(e){}
   const el=document.getElementById('doc-list');
-  if(!docs.length){el.innerHTML='<p style="font-size:13px;color:#c7c7cc;">尚未新增任何知識庫文件</p>';return;}
-  el.innerHTML=docs.map((d,i)=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid #e5e5ea;">
-      <span style="font-size:13px;color:#3a3a3c;flex:1;word-break:break-all;">${d.label}</span>
-      <button onclick="removeDoc(${i})" style="background:none;border:none;color:#ff3b30;font-size:13px;cursor:pointer;flex-shrink:0;">刪除</button>
-    </div>`).join('');
-  // load API key into field
-  const savedKey=ls('wd_apikey')||'';
-  if(savedKey) document.getElementById('cfg-apikey').value=savedKey;
+  if(!docs.length){el.innerHTML='<p style="font-size:13px;color:#c7c7cc;margin-bottom:4px">尚未新增任何知識庫文件</p>';return}
+  el.innerHTML=docs.map((d,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid #e5e5ea"><span style="font-size:13px;color:#3a3a3c;flex:1;word-break:break-all">${d.label}</span><button onclick="removeDoc(${i})" style="background:none;border:none;color:#ff3b30;font-size:13px;cursor:pointer;flex-shrink:0">刪除</button></div>`).join('');
 }
 
-// ── AI Analysis ───────────────────────────────────────────
+// ── AI Analysis ─────────────────────────────────────────
 async function fetchDocText(docId){
-  const exportUrl=`https://docs.google.com/document/d/${docId}/export?format=txt`;
-  const res=await fetch(exportUrl);
-  if(!res.ok) throw new Error('無法讀取文件 '+docId);
+  const res=await fetch(`https://docs.google.com/document/d/${docId}/export?format=txt`);
+  if(!res.ok)throw new Error('無法讀取文件 '+docId);
   return await res.text();
 }
 
 function buildTrainingSummary(){
   const fd=filteredData();
-  if(!fd.length) return '目前期間內沒有訓練紀錄。';
+  if(!fd.length)return'目前期間內沒有訓練紀錄。';
   const days=analysisDays===0?'全部時間':`最近 ${analysisDays} 天`;
   const totalSets=fd.reduce((s,x)=>s+x.sets.length,0);
   const trainDays=new Set(fd.map(x=>x.date)).size;
-
-  // Per-exercise summary
-  const byExercise={};
+  const byEx={};
   fd.forEach(x=>{
-    if(!byExercise[x.exercise]) byExercise[x.exercise]={group:x.group,isChinup:x.isChinup,sessions:[],maxWeight:0};
-    const maxW=Math.max(...x.sets.map(s=>s.weight));
-    byExercise[x.exercise].sessions.push({date:x.date,sets:x.sets.length,maxW});
-    if(maxW>byExercise[x.exercise].maxWeight) byExercise[x.exercise].maxWeight=maxW;
+    if(!byEx[x.exercise])byEx[x.exercise]={group:x.group,isChinup:x.isChinup,sessions:[],maxW:0};
+    const mw=Math.max(...x.sets.map(s=>s.weight));
+    byEx[x.exercise].sessions.push({date:x.date,sets:x.sets.length,mw});
+    if(mw>byEx[x.exercise].maxW)byEx[x.exercise].maxW=mw;
   });
-
   const lines=[`期間：${days}，共 ${trainDays} 天訓練，${totalSets} 組`,'','各動作紀錄：'];
-  Object.entries(byExercise).forEach(([ex,info])=>{
-    const sessions=info.sessions.length;
-    const wLabel=info.isChinup?`彈力繩最細 ${info.maxWeight}`:`最大重量 ${info.maxWeight}kg`;
-    lines.push(`- ${ex}（${groupNames[info.group]}）：${sessions} 次訓練，${wLabel}`);
-    // Show weight progression if multiple sessions
+  Object.entries(byEx).forEach(([ex,info])=>{
+    const wLabel=info.isChinup?`彈力繩最細 ${info.maxW}`:`最大重量 ${info.maxW}kg`;
+    lines.push(`- ${ex}（${groupNames[info.group]}）：${info.sessions.length} 次訓練，${wLabel}`);
     if(info.sessions.length>1){
-      const prog=info.sessions.map(s=>`${s.date.slice(5)} ${s.maxW}${info.isChinup?'號':'kg'}×${s.sets}組`).join(' → ');
-      lines.push(`  進度：${prog}`);
+      lines.push('  進度：'+info.sessions.map(s=>`${s.date.slice(5)} ${s.mw}${info.isChinup?'號':'kg'}×${s.sets}組`).join(' → '));
     }
   });
   return lines.join('\n');
@@ -871,85 +710,55 @@ function buildTrainingSummary(){
 
 async function runAIAnalysis(){
   const apiKey=ls('wd_apikey')||'';
-  if(!apiKey){toast('請先到設定頁面填入 API Key',true);return;}
-  if(!data.length){toast('還沒有訓練紀錄',true);return;}
-
+  if(!apiKey){toast('請先到設定填入 API Key',true);return}
+  if(!data.length){toast('還沒有訓練紀錄',true);return}
   const btn=document.getElementById('ai-btn');
   const statusEl=document.getElementById('ai-status');
   const resultEl=document.getElementById('ai-result');
-  btn.disabled=true; btn.textContent='分析中...';
-  resultEl.style.display='none'; statusEl.textContent='';
+  btn.disabled=true;btn.textContent='分析中...';
+  resultEl.style.display='none';statusEl.textContent='';statusEl.style.color='#8e8e93';
 
-  // 1. Fetch knowledge base docs
   let knowledgeText='';
-  let docs=[];
-  try{docs=JSON.parse(ls('wd_docs')||'[]');}catch(e){}
-
+  let docs=[];try{docs=JSON.parse(ls('wd_docs')||'[]')}catch(e){}
   if(docs.length){
     statusEl.textContent=`讀取知識庫（${docs.length} 份文件）...`;
     const fetched=[];
     for(const doc of docs){
-      try{
-        const txt=await fetchDocText(doc.id);
-        fetched.push(`=== 知識庫文件 ===\n${txt.slice(0,8000)}`);
-      }catch(e){
-        fetched.push(`（文件 ${doc.id} 讀取失敗，請確認已設為公開）`);
-      }
+      try{const txt=await fetchDocText(doc.id);fetched.push(`=== 知識庫文件 ===\n${txt.slice(0,8000)}`)}
+      catch(e){fetched.push(`（文件 ${doc.id} 讀取失敗，請確認已設為公開）`)}
     }
     knowledgeText=fetched.join('\n\n');
   }
 
-  // 2. Build training summary
   statusEl.textContent='整理訓練紀錄...';
   const trainingSummary=buildTrainingSummary();
-
-  // 3. Build prompt
   const systemPrompt=knowledgeText
-    ? `你是一位專業重訓教練助理。請嚴格根據以下知識庫內容作為你的知識基礎來給建議，不要使用知識庫以外的資訊。若知識庫未涵蓋某主題，請說明。\n\n${knowledgeText}`
-    : `你是一位專業重訓教練助理。根據使用者的訓練紀錄，給予具體、實用的分析與建議。`;
-
+    ?`你是一位專業重訓教練助理。請嚴格根據以下知識庫內容作為知識基礎給建議，不使用知識庫以外的資訊。\n\n${knowledgeText}`
+    :`你是一位專業重訓教練助理。根據使用者的訓練紀錄，給予具體、實用的分析與建議。`;
   const userPrompt=`以下是我的訓練紀錄：\n\n${trainingSummary}\n\n請針對以下三個面向給我具體建議：\n1. 每週訓練頻率與恢復狀況分析\n2. 漸進式超負荷（Progressive Overload）的執行情況與建議\n3. 我的弱項肌群識別與加強建議\n\n請用繁體中文回答，條列清楚，每個面向給 2-3 個具體可執行的建議。`;
 
-  // 4. Call Claude API
   statusEl.textContent='AI 分析中，請稍候...';
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':apiKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1500,
-        system:systemPrompt,
-        messages:[{role:'user',content:userPrompt}]
-      })
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:systemPrompt,messages:[{role:'user',content:userPrompt}]})
     });
-    if(!res.ok){
-      const err=await res.json();
-      throw new Error(err.error?.message||'API 錯誤 '+res.status);
-    }
+    if(!res.ok){const err=await res.json();throw new Error(err.error?.message||'API 錯誤 '+res.status)}
     const json=await res.json();
     const text=json.content.map(b=>b.text||'').join('');
-    resultEl.textContent=text;
-    resultEl.style.display='block';
+    resultEl.textContent=text;resultEl.style.display='block';
     statusEl.textContent=knowledgeText?`✓ 分析完成（基於 ${docs.length} 份知識庫文件）`:'✓ 分析完成';
     statusEl.style.color='#34c759';
   }catch(e){
-    statusEl.textContent='✗ '+e.message;
-    statusEl.style.color='#ff3b30';
-    toast('分析失敗：'+e.message,true);
+    statusEl.textContent='✗ '+e.message;statusEl.style.color='#ff3b30';toast('分析失敗',true);
   }finally{
-    btn.disabled=false; btn.textContent='重新分析';
+    btn.disabled=false;btn.textContent='重新分析';
   }
 }
 
 setTimeout(function(){
-  loadStorage(); initForm(); render();
-  renderDocList();
+  loadStorage();initForm();render();renderDocList();
 },0);
 </script>
 </body>
