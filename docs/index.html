@@ -274,8 +274,9 @@ function doGet(e) {
 
     <div class="sheets-step">
       <h3>同步資料</h3>
-      <p style="margin-bottom:12px;">將所有紀錄一次同步到 Google Sheets。已同步過的資料會重複新增，建議先清空試算表再同步。</p>
-      <button class="btn-primary" onclick="syncToSheets()">立即同步所有紀錄</button>
+      <p style="margin-bottom:12px;">只會上傳尚未同步過的新紀錄，不會重複。</p>
+      <button class="btn-primary" onclick="syncToSheets()">同步新紀錄到 Sheets</button>
+      <button class="btn-secondary" style="width:100%;margin-top:8px;" onclick="resetSyncState()">重置同步狀態（下次全部重新上傳）</button>
       <div class="sync-status" id="sync-result"></div>
     </div>
   </div>
@@ -559,18 +560,48 @@ async function syncToSheets(){
   if(!url){toast('請先設定 Google Sheets URL',true);return;}
   if(!data.length){toast('沒有資料可同步',true);return;}
   const el=document.getElementById('sync-result');
-  el.textContent='同步中...'; el.className='sync-status';
-  const rows=[];
-  data.forEach(x=>x.sets.forEach((s,i)=>rows.push([x.date,groupNames[x.group],x.exercise,`第${i+1}組`,x.isChinup?`彈力繩${s.weight}`:s.weight,s.reps])));
+
+  // Load set of already-synced entry+set IDs: "entryId:setIndex"
+  let synced;
+  try { synced=new Set(JSON.parse(ls('wd_synced')||'[]')); } catch(e){ synced=new Set(); }
+
+  // Build only rows not yet synced
+  const rows=[], newKeys=[];
+  data.forEach(x=>x.sets.forEach((s,i)=>{
+    const key=`${x.id}:${i}`;
+    if(!synced.has(key)){
+      rows.push([x.date,groupNames[x.group],x.exercise,`第${i+1}組`,x.isChinup?`彈力繩${s.weight}`:s.weight,s.reps]);
+      newKeys.push(key);
+    }
+  }));
+
+  if(!rows.length){
+    el.textContent='✓ 沒有新紀錄，全部已同步過了'; el.className='sync-status sync-ok';
+    toast('已是最新，無需同步');
+    return;
+  }
+
+  el.textContent=`同步中（${rows.length} 筆新紀錄）...`; el.className='sync-status';
+
   try {
     const res=await fetch(url,{method:'POST',body:JSON.stringify(rows)});
     const json=await res.json();
-    el.textContent=`✓ 成功同步 ${json.added} 筆資料！`; el.className='sync-status sync-ok';
+    // Mark these keys as synced
+    newKeys.forEach(k=>synced.add(k));
+    ls('wd_synced',JSON.stringify([...synced]));
+    el.textContent=`✓ 成功同步 ${json.added} 筆新資料！`; el.className='sync-status sync-ok';
     toast('同步成功！');
   } catch(e) {
     el.textContent='✗ 同步失敗，請確認 URL 是否正確'; el.className='sync-status sync-err';
     toast('同步失敗',true);
   }
+}
+
+function resetSyncState(){
+  ls('wd_synced','[]');
+  const el=document.getElementById('sync-result');
+  el.textContent='✓ 已重置，下次同步將上傳所有紀錄'; el.className='sync-status sync-ok';
+  toast('同步狀態已重置');
 }
 
 function render(){ renderToday(); renderHistory(); renderMetrics(); renderTrendSelect(); renderTrend(); renderDist(); }
