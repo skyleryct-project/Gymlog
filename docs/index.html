@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="重訓紀錄">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>GYMLOG</title>
+<title>重訓紀錄</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #f2f2f7; color: #1c1c1e; font-size: 16px; }
@@ -119,23 +119,23 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
 <div class="app">
   <!-- 記錄 -->
   <div class="section active" id="tab-record">
-    <div class="page-title">TODAY'S LOG</div>
+    <div class="page-title">記錄訓練</div>
     <div class="card">
       <div class="row2">
-        <div class="field"><label>DATE</label><input type="date" id="inp-date"></div>
-        <div class="field"><label>CATEGORY</label>
+        <div class="field"><label>日期</label><input type="date" id="inp-date"></div>
+        <div class="field"><label>肌群</label>
           <select id="inp-group" onchange="onGroupChange()">
-            <option value="chest">CHEST/PUSH</option>
-            <option value="back">BACK/PULL</option>
-            <option value="legs">LEGS</option>
-            <option value="arms">ARMS</option>
-            <option value="core">CORE</option>
-            <option value="cardio">CARDIO</option>
+            <option value="chest">胸/推</option>
+            <option value="back">背/拉</option>
+            <option value="legs">腿</option>
+            <option value="arms">手臂</option>
+            <option value="core">核心</option>
+            <option value="cardio">有氧</option>
           </select>
         </div>
       </div>
       <div class="field">
-        <label>EXERCISES</label>
+        <label>動作名稱</label>
         <select id="inp-exercise-select" onchange="onExerciseChange()"></select>
       </div>
       <div class="field" id="new-move-area" style="display:none;">
@@ -149,9 +149,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
       <!-- 一般動作 -->
       <div id="weight-area">
         <div class="row3">
-          <div class="field"><label>WEIGHT kg</label><input type="number" id="inp-weight" min="0" step="0.5" placeholder="60" inputmode="decimal"></div>
-          <div class="field"><label>REPS</label><input type="number" id="inp-reps" min="1" placeholder="10" inputmode="numeric"></div>
-          <div class="field"><label>SETS</label><input type="number" id="inp-sets" min="1" placeholder="1" value="1" inputmode="numeric"></div>
+          <div class="field"><label>重量 kg</label><input type="number" id="inp-weight" min="0" step="0.5" placeholder="60" inputmode="decimal"></div>
+          <div class="field"><label>次數</label><input type="number" id="inp-reps" min="1" placeholder="10" inputmode="numeric"></div>
+          <div class="field"><label>組數</label><input type="number" id="inp-sets" min="1" placeholder="1" value="1" inputmode="numeric"></div>
         </div>
       </div>
 
@@ -167,20 +167,20 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
           </div>
         </div>
         <div class="row2">
-          <div class="field"><label>REPS</label><input type="number" id="inp-reps-chinup" min="1" placeholder="8" inputmode="numeric"></div>
-          <div class="field"><label>SETS</label><input type="number" id="inp-sets-chinup" min="1" placeholder="1" value="1" inputmode="numeric"></div>
+          <div class="field"><label>次數</label><input type="number" id="inp-reps-chinup" min="1" placeholder="8" inputmode="numeric"></div>
+          <div class="field"><label>組數</label><input type="number" id="inp-sets-chinup" min="1" placeholder="1" value="1" inputmode="numeric"></div>
         </div>
       </div>
 
-      <button class="btn-primary" onclick="addEntry()">LOG IT</button>
+      <button class="btn-primary" onclick="addEntry()">新增這組</button>
       <div class="btn-row">
-        <button class="btn-secondary" onclick="addQuick()">COPY THE LAST RECORD</button>
+        <button class="btn-secondary" onclick="addQuick()">複製上一筆</button>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">TODAY'S LOG</div>
-      <div id="today-list"><div class="empty">NO RECORDS TODAY</div></div>
+      <div class="card-title">今日紀錄</div>
+      <div id="today-list"><div class="empty">今天還沒有紀錄</div></div>
     </div>
   </div>
 
@@ -230,7 +230,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
       <div class="card-title">訓練量分佈</div>
       <div class="chart-wrap" style="height:200px;"><canvas id="distChart"></canvas></div>
     </div>
-    <button class="btn-secondary" style="width:100%;margin-top:4px;" onclick="openAI()">取得 AI 訓練建議（開啟 Claude）</button>
+    <div class="card" id="ai-card">
+      <div class="card-title">AI 訓練分析</div>
+      <div id="ai-result" style="font-size:14px;line-height:1.8;color:#1c1c1e;white-space:pre-wrap;display:none;margin-bottom:12px;"></div>
+      <button class="btn-primary" id="ai-btn" onclick="runAIAnalysis()" style="background:#5856d6;">開始分析我的訓練</button>
+      <div id="ai-status" style="font-size:13px;color:#8e8e93;margin-top:8px;min-height:18px;"></div>
+    </div>
   </div>
 
   <!-- Sheets 同步 -->
@@ -296,13 +301,52 @@ function doGet(e) {
     </div>
   </div>
 
+  <!-- 設定 -->
+  <div class="section" id="tab-settings">
+    <div class="page-title">設定</div>
+
+    <div class="card">
+      <div class="card-title">Claude API 設定</div>
+      <div class="field">
+        <label>API Key（從 console.anthropic.com 取得）</label>
+        <input type="password" id="cfg-apikey" placeholder="sk-ant-...">
+      </div>
+      <button class="btn-primary" onclick="saveSettings()" style="margin-top:4px;">儲存設定</button>
+      <div id="cfg-status" style="font-size:13px;margin-top:8px;min-height:18px;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">知識庫（Google Docs）</div>
+      <p style="font-size:13px;color:#8e8e93;margin-bottom:12px;">將你信任的訓練資料整理成 Google Doc，設為「知道連結的人都可以檢視」後貼上連結。每次 AI 分析時會自動讀取最新內容。</p>
+      <div id="doc-list"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <input type="url" id="cfg-docurl" placeholder="https://docs.google.com/document/d/..." style="flex:1;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px;">
+        <button class="btn-secondary" onclick="addDoc()">新增</button>
+      </div>
+      <div id="doc-status" style="font-size:13px;color:#8e8e93;margin-top:8px;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">使用說明</div>
+      <ol style="font-size:13px;color:#3a3a3c;line-height:2;padding-left:18px;">
+        <li>到 <a href="https://console.anthropic.com" target="_blank" style="color:#007aff;">console.anthropic.com</a> 註冊並取得 API Key</li>
+        <li>加值最低  美元（約台幣 160 元）</li>
+        <li>建立 Google Doc，整理你信任的訓練知識</li>
+        <li>將 Doc 設為「知道連結的人都可以檢視」</li>
+        <li>貼上連結並儲存，之後在分析頁面點「開始分析」即可</li>
+      </ol>
+    </div>
+  </div>
+
   <!-- Tab bar -->
+
   <div class="tabbar">
     <div class="tabbar-inner">
       <button class="tab-btn active" onclick="showTab('record',this)"><span class="tab-icon">💪</span>記錄</button>
       <button class="tab-btn" onclick="showTab('history',this)"><span class="tab-icon">📋</span>歷史</button>
       <button class="tab-btn" onclick="showTab('analysis',this)"><span class="tab-icon">📊</span>分析</button>
       <button class="tab-btn" onclick="showTab('sheets',this)"><span class="tab-icon">🔗</span>同步</button>
+      <button class="tab-btn" onclick="showTab('settings',this)"><span class="tab-icon">⚙️</span>設定</button>
     </div>
   </div>
 </div>
@@ -604,7 +648,7 @@ async function syncToSheets(){
   data.forEach(x=>x.sets.forEach((s,i)=>{
     const key=`${x.id}:${i}`;
     if(!synced.has(key)){
-      rows.push([x.date,groupNames[x.group],x.exercise,`第${i+1}組`,x.isChinup?`彈力繩${s.weight}`:s.weight,s.reps]);
+      rows.push([String(x.date).slice(0,10),groupNames[x.group],x.exercise,`第${i+1}組`,x.isChinup?`彈力繩${s.weight}`:s.weight,s.reps]);
       newKeys.push(key);
     }
   }));
@@ -666,7 +710,18 @@ async function importFromSheets(){
     let imported=0;
 
     json.rows.forEach(r=>{
-      const date=String(r[0]).trim();
+      // FIX: normalise date — Sheets may return ISO timestamp or plain date string
+      const rawDate=r[0];
+      let date;
+      if(rawDate instanceof Date || (typeof rawDate==='string' && rawDate.includes('T'))) {
+        // Parse and convert to local YYYY-MM-DD using UTC+8 offset
+        const d=new Date(rawDate);
+        const local=new Date(d.getTime() + 8*60*60*1000);
+        date=local.toISOString().slice(0,10);
+      } else {
+        date=String(rawDate).trim().slice(0,10);
+      }
+
       const exercise=String(r[2]).trim();
       const rawWeight=String(r[4]).trim();
       const reps=parseInt(r[5]);
@@ -676,16 +731,15 @@ async function importFromSheets(){
       const weight=isChinup?parseInt(rawWeight.replace(/[^0-9]/g,'')):parseFloat(rawWeight);
       if(isNaN(weight)) return;
 
-      const gKey=`${date}|${exercise}`;
+      const gKey=;
       if(!sheetsCounter[gKey]) sheetsCounter[gKey]=0;
       const setIdx=sheetsCounter[gKey]++;
-      const key=`${date}|${exercise}|${setIdx}`;
+      const key=;
       if(existingKeys.has(key)) return; // already on phone
 
       // Find or create entry in local data
       let entry=data.find(x=>x.date===date&&x.exercise===exercise);
       if(!entry){
-        // Determine group from groupNames reverse lookup
         const groupKey=Object.keys(groupNames).find(k=>groupNames[k]===String(r[1]).trim())||'chest';
         entry={id:Date.now()+Math.random(),date,group:groupKey,exercise,isChinup,sets:[]};
         data.push(entry);
@@ -717,10 +771,186 @@ function showTab(id,btn){
   document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
   if(id==='analysis'){renderMetrics();renderTrendSelect();renderTrend();renderDist();}
+  if(id==='settings'){renderDocList();}
+}
+
+// ── Settings ──────────────────────────────────────────────
+function saveSettings(){
+  const key=document.getElementById('cfg-apikey').value.trim();
+  if(!key){toast('請輸入 API Key',true);return;}
+  ls('wd_apikey',key);
+  const el=document.getElementById('cfg-status');
+  el.textContent='✓ 已儲存'; el.style.color='#34c759';
+  setTimeout(()=>el.textContent='',2000);
+  toast('API Key 已儲存');
+}
+
+function addDoc(){
+  const url=document.getElementById('cfg-docurl').value.trim();
+  const el=document.getElementById('doc-status');
+  if(!url||!url.includes('docs.google.com/document')){
+    el.textContent='請貼上正確的 Google Docs 網址'; el.style.color='#ff3b30'; return;
+  }
+  let docs=[];
+  try{docs=JSON.parse(ls('wd_docs')||'[]');}catch(e){}
+  if(docs.find(d=>d.url===url)){el.textContent='此文件已在清單中';el.style.color='#ff3b30';return;}
+  const id=extractDocId(url);
+  if(!id){el.textContent='無法解析文件 ID，請確認網址格式';el.style.color='#ff3b30';return;}
+  docs.push({url,id,label:url.slice(0,60)+'...'});
+  ls('wd_docs',JSON.stringify(docs));
+  document.getElementById('cfg-docurl').value='';
+  el.textContent='✓ 已新增'; el.style.color='#34c759';
+  setTimeout(()=>el.textContent='',2000);
+  renderDocList();
+}
+
+function extractDocId(url){
+  const m=url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+  return m?m[1]:null;
+}
+
+function removeDoc(idx){
+  let docs=[];
+  try{docs=JSON.parse(ls('wd_docs')||'[]');}catch(e){}
+  docs.splice(idx,1);
+  ls('wd_docs',JSON.stringify(docs));
+  renderDocList();
+}
+
+function renderDocList(){
+  let docs=[];
+  try{docs=JSON.parse(ls('wd_docs')||'[]');}catch(e){}
+  const el=document.getElementById('doc-list');
+  if(!docs.length){el.innerHTML='<p style="font-size:13px;color:#c7c7cc;">尚未新增任何知識庫文件</p>';return;}
+  el.innerHTML=docs.map((d,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid #e5e5ea;">
+      <span style="font-size:13px;color:#3a3a3c;flex:1;word-break:break-all;">${d.label}</span>
+      <button onclick="removeDoc(${i})" style="background:none;border:none;color:#ff3b30;font-size:13px;cursor:pointer;flex-shrink:0;">刪除</button>
+    </div>`).join('');
+  // load API key into field
+  const savedKey=ls('wd_apikey')||'';
+  if(savedKey) document.getElementById('cfg-apikey').value=savedKey;
+}
+
+// ── AI Analysis ───────────────────────────────────────────
+async function fetchDocText(docId){
+  const exportUrl=`https://docs.google.com/document/d/${docId}/export?format=txt`;
+  const res=await fetch(exportUrl);
+  if(!res.ok) throw new Error('無法讀取文件 '+docId);
+  return await res.text();
+}
+
+function buildTrainingSummary(){
+  const fd=filteredData();
+  if(!fd.length) return '目前期間內沒有訓練紀錄。';
+  const days=analysisDays===0?'全部時間':`最近 ${analysisDays} 天`;
+  const totalSets=fd.reduce((s,x)=>s+x.sets.length,0);
+  const trainDays=new Set(fd.map(x=>x.date)).size;
+
+  // Per-exercise summary
+  const byExercise={};
+  fd.forEach(x=>{
+    if(!byExercise[x.exercise]) byExercise[x.exercise]={group:x.group,isChinup:x.isChinup,sessions:[],maxWeight:0};
+    const maxW=Math.max(...x.sets.map(s=>s.weight));
+    byExercise[x.exercise].sessions.push({date:x.date,sets:x.sets.length,maxW});
+    if(maxW>byExercise[x.exercise].maxWeight) byExercise[x.exercise].maxWeight=maxW;
+  });
+
+  const lines=[`期間：${days}，共 ${trainDays} 天訓練，${totalSets} 組`,'','各動作紀錄：'];
+  Object.entries(byExercise).forEach(([ex,info])=>{
+    const sessions=info.sessions.length;
+    const wLabel=info.isChinup?`彈力繩最細 ${info.maxWeight}`:`最大重量 ${info.maxWeight}kg`;
+    lines.push(`- ${ex}（${groupNames[info.group]}）：${sessions} 次訓練，${wLabel}`);
+    // Show weight progression if multiple sessions
+    if(info.sessions.length>1){
+      const prog=info.sessions.map(s=>`${s.date.slice(5)} ${s.maxW}${info.isChinup?'號':'kg'}×${s.sets}組`).join(' → ');
+      lines.push(`  進度：${prog}`);
+    }
+  });
+  return lines.join('\n');
+}
+
+async function runAIAnalysis(){
+  const apiKey=ls('wd_apikey')||'';
+  if(!apiKey){toast('請先到設定頁面填入 API Key',true);return;}
+  if(!data.length){toast('還沒有訓練紀錄',true);return;}
+
+  const btn=document.getElementById('ai-btn');
+  const statusEl=document.getElementById('ai-status');
+  const resultEl=document.getElementById('ai-result');
+  btn.disabled=true; btn.textContent='分析中...';
+  resultEl.style.display='none'; statusEl.textContent='';
+
+  // 1. Fetch knowledge base docs
+  let knowledgeText='';
+  let docs=[];
+  try{docs=JSON.parse(ls('wd_docs')||'[]');}catch(e){}
+
+  if(docs.length){
+    statusEl.textContent=`讀取知識庫（${docs.length} 份文件）...`;
+    const fetched=[];
+    for(const doc of docs){
+      try{
+        const txt=await fetchDocText(doc.id);
+        fetched.push(`=== 知識庫文件 ===\n${txt.slice(0,8000)}`);
+      }catch(e){
+        fetched.push(`（文件 ${doc.id} 讀取失敗，請確認已設為公開）`);
+      }
+    }
+    knowledgeText=fetched.join('\n\n');
+  }
+
+  // 2. Build training summary
+  statusEl.textContent='整理訓練紀錄...';
+  const trainingSummary=buildTrainingSummary();
+
+  // 3. Build prompt
+  const systemPrompt=knowledgeText
+    ? `你是一位專業重訓教練助理。請嚴格根據以下知識庫內容作為你的知識基礎來給建議，不要使用知識庫以外的資訊。若知識庫未涵蓋某主題，請說明。\n\n${knowledgeText}`
+    : `你是一位專業重訓教練助理。根據使用者的訓練紀錄，給予具體、實用的分析與建議。`;
+
+  const userPrompt=`以下是我的訓練紀錄：\n\n${trainingSummary}\n\n請針對以下三個面向給我具體建議：\n1. 每週訓練頻率與恢復狀況分析\n2. 漸進式超負荷（Progressive Overload）的執行情況與建議\n3. 我的弱項肌群識別與加強建議\n\n請用繁體中文回答，條列清楚，每個面向給 2-3 個具體可執行的建議。`;
+
+  // 4. Call Claude API
+  statusEl.textContent='AI 分析中，請稍候...';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        system:systemPrompt,
+        messages:[{role:'user',content:userPrompt}]
+      })
+    });
+    if(!res.ok){
+      const err=await res.json();
+      throw new Error(err.error?.message||'API 錯誤 '+res.status);
+    }
+    const json=await res.json();
+    const text=json.content.map(b=>b.text||'').join('');
+    resultEl.textContent=text;
+    resultEl.style.display='block';
+    statusEl.textContent=knowledgeText?`✓ 分析完成（基於 ${docs.length} 份知識庫文件）`:'✓ 分析完成';
+    statusEl.style.color='#34c759';
+  }catch(e){
+    statusEl.textContent='✗ '+e.message;
+    statusEl.style.color='#ff3b30';
+    toast('分析失敗：'+e.message,true);
+  }finally{
+    btn.disabled=false; btn.textContent='重新分析';
+  }
 }
 
 setTimeout(function(){
   loadStorage(); initForm(); render();
+  renderDocList();
 },0);
 </script>
 </body>
