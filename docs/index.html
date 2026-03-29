@@ -142,8 +142,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <div id="add-msg" style="font-size:13px;margin-top:8px;min-height:20px"></div>
     </div>
     <div class="card">
-      <div class="card-title">今日紀錄</div>
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>今日紀錄</span>
+        <button onclick="syncToday()" style="font-size:12px;font-weight:500;color:#007aff;background:none;border:none;cursor:pointer;padding:0">上傳今日紀錄 ↑</button>
+      </div>
       <div id="today-list"><div style="text-align:center;padding:24px;color:#8e8e93;font-size:14px">今天還沒有紀錄</div></div>
+      <div id="today-sync-status" style="font-size:13px;margin-top:6px;min-height:16px"></div>
     </div>
   </div>
 
@@ -584,6 +588,41 @@ async function syncToSheets(){
   }catch(e){el.textContent='✗ 同步失敗，請確認 URL';el.className='sync-status sync-err';toast('同步失敗',true)}
 }
 
+async function syncToday(){
+  const url=ls('wd_sheets_url');
+  const el=document.getElementById('today-sync-status');
+  if(!url){
+    el.textContent='請先到同步分頁設定 Sheets URL';el.style.color='#ff3b30';
+    setTimeout(()=>el.textContent='',3000);return;
+  }
+  const t=todayStr();
+  const todayEntries=data.filter(x=>x.date===t);
+  if(!todayEntries.length){el.textContent='今天還沒有紀錄';el.style.color='#8e8e93';setTimeout(()=>el.textContent='',2000);return}
+
+  let synced;try{synced=new Set(JSON.parse(ls('wd_synced')||'[]'))}catch(e){synced=new Set()}
+  const rows=[],newKeys=[];
+  todayEntries.forEach(x=>x.sets.forEach((s,i)=>{
+    const key=;
+    if(!synced.has(key)){
+      rows.push([String(x.date).slice(0,10),groupNames[x.group],x.exercise,,x.isChinup?:s.weight,s.reps]);
+      newKeys.push(key);
+    }
+  }));
+  if(!rows.length){el.textContent='✓ 今日紀錄已全部上傳過了';el.style.color='#34c759';setTimeout(()=>el.textContent='',2500);return}
+  el.textContent=;el.style.color='#8e8e93';
+  try{
+    const res=await fetch(url,{method:'POST',body:JSON.stringify(rows)});
+    const json=await res.json();
+    newKeys.forEach(k=>synced.add(k));ls('wd_synced',JSON.stringify([...synced]));
+    el.textContent=;el.style.color='#34c759';
+    setTimeout(()=>el.textContent='',3000);
+    toast('今日紀錄已上傳！');
+  }catch(e){
+    el.textContent='✗ 上傳失敗，請確認 Sheets URL';el.style.color='#ff3b30';
+    setTimeout(()=>el.textContent='',3000);
+  }
+}
+
 function resetSyncState(){
   ls('wd_synced','[]');
   const el=document.getElementById('sync-result');el.textContent='✓ 已重置，下次將上傳所有紀錄';el.className='sync-status sync-ok';
@@ -591,14 +630,27 @@ function resetSyncState(){
 }
 
 function normaliseDate(raw){
-  if(!raw)return'';
-  const s=String(raw);
-  if(s.includes('T')){
-    const d=new Date(s);
-    const local=new Date(d.getTime()+8*60*60*1000);
-    return local.toISOString().slice(0,10);
+  if(raw===null||raw===undefined||raw==='')return'';
+  // Case 1: JS Date object or ISO string with T (Sheets serialised date)
+  if(raw instanceof Date||(typeof raw==='string'&&raw.includes('T'))){
+    const d=new Date(raw);
+    // Use local date parts to avoid timezone shift
+    const y=d.getFullYear();
+    const m=String(d.getMonth()+1).padStart(2,'0');
+    const dd=String(d.getDate()).padStart(2,'0');
+    return ;
   }
-  return s.trim().slice(0,10);
+  // Case 2: Excel serial date number (days since 1899-12-30)
+  if(typeof raw==='number'){
+    const excelEpoch=new Date(1899,11,30);
+    const d=new Date(excelEpoch.getTime()+raw*86400000);
+    const y=d.getFullYear();
+    const m=String(d.getMonth()+1).padStart(2,'0');
+    const dd=String(d.getDate()).padStart(2,'0');
+    return ;
+  }
+  // Case 3: plain string YYYY-MM-DD or similar
+  return String(raw).trim().slice(0,10);
 }
 
 async function importFromSheets(){
