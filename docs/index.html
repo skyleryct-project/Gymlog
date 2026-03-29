@@ -56,7 +56,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 .sets-chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{background:#f2f2f7;border-radius:20px;padding:4px 12px;font-size:13px;color:#3a3a3c;display:flex;align-items:center;gap:4px}
 .chip-del{background:none;border:none;color:#c7c7cc;font-size:12px;cursor:pointer;padding:0;line-height:1}
-.chip-del:active{color:#ff3b30}
 .badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;margin-left:6px}
 .badge-chest{background:#e3f2fd;color:#1565c0}
 .badge-back{background:#e8f5e9;color:#2e7d32}
@@ -80,6 +79,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 .url-input-row input{flex:1;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px}
 #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.75);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;opacity:0;transition:opacity 0.2s;pointer-events:none;z-index:200;white-space:nowrap}
 #toast.show{opacity:1}
+.empty{text-align:center;padding:24px;color:#8e8e93;font-size:14px}
 </style>
 </head>
 <body>
@@ -90,8 +90,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     <div class="page-title">記錄訓練</div>
     <div class="card">
       <div class="row2">
-        <div class="field"><label>日期</label><input type="date" id="inp-date"></div>
-        <div class="field"><label>肌群</label>
+        <div class="field">
+          <label>日期</label>
+          <input type="date" id="inp-date">
+        </div>
+        <div class="field">
+          <label>肌群</label>
           <select id="inp-group" onchange="onGroupChange()">
             <option value="chest">胸/推</option>
             <option value="back">背/拉</option>
@@ -117,7 +121,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
         <div class="row3">
           <div class="field"><label>重量 kg</label><input type="number" id="inp-weight" min="0" step="0.5" placeholder="60" inputmode="decimal"></div>
           <div class="field"><label>次數</label><input type="number" id="inp-reps" min="1" placeholder="10" inputmode="numeric"></div>
-          <div class="field"><label>組數</label><input type="number" id="inp-sets" min="1" placeholder="1" value="1" inputmode="numeric"></div>
+          <div class="field"><label>組數</label><input type="number" id="inp-sets" min="1" value="1" inputmode="numeric"></div>
         </div>
       </div>
       <div id="chinup-area" style="display:none">
@@ -132,7 +136,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
         </div>
         <div class="row2">
           <div class="field"><label>次數</label><input type="number" id="inp-reps-chinup" min="1" placeholder="8" inputmode="numeric"></div>
-          <div class="field"><label>組數</label><input type="number" id="inp-sets-chinup" min="1" placeholder="1" value="1" inputmode="numeric"></div>
+          <div class="field"><label>組數</label><input type="number" id="inp-sets-chinup" min="1" value="1" inputmode="numeric"></div>
         </div>
       </div>
       <button class="btn-primary" onclick="addEntry()">新增這組</button>
@@ -142,11 +146,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <div id="add-msg" style="font-size:13px;margin-top:8px;min-height:20px"></div>
     </div>
     <div class="card">
-      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
-        <span>今日紀錄</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span class="card-title" style="margin-bottom:0">今日紀錄</span>
         <button onclick="syncToday()" style="font-size:12px;font-weight:500;color:#007aff;background:none;border:none;cursor:pointer;padding:0">上傳今日紀錄 ↑</button>
       </div>
-      <div id="today-list"><div style="text-align:center;padding:24px;color:#8e8e93;font-size:14px">今天還沒有紀錄</div></div>
+      <div id="today-list"><div class="empty">今天還沒有紀錄</div></div>
       <div id="today-sync-status" style="font-size:13px;margin-top:6px;min-height:16px"></div>
     </div>
   </div>
@@ -163,7 +167,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <span class="filter-pill" onclick="filterHistory('core',this)">核心</span>
       <span class="filter-pill" onclick="filterHistory('cardio',this)">有氧</span>
     </div>
-    <div class="card"><div id="history-list"><div style="text-align:center;padding:24px;color:#8e8e93;font-size:14px">還沒有任何紀錄</div></div></div>
+    <div class="card">
+      <div id="history-list"><div class="empty">還沒有任何紀錄</div></div>
+    </div>
     <div class="btn-row">
       <button class="btn-secondary" onclick="exportCSV()">匯出 CSV</button>
       <button class="btn-secondary" onclick="exportJSON()">匯出 JSON</button>
@@ -214,7 +220,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <h3>步驟二：建立 Apps Script</h3>
       <ol>
         <li>在試算表中點「擴充功能」→「Apps Script」</li>
-        <li>貼上以下程式碼並儲存，然後部署為網頁應用程式，存取權設為「任何人」</li>
+        <li>貼上以下程式碼，儲存後部署為網頁應用程式，存取權設為「任何人」</li>
       </ol>
       <div style="background:#f2f2f7;border-radius:8px;padding:12px;margin-top:10px;overflow-x:auto">
         <pre style="font-size:12px;line-height:1.5;font-family:monospace;white-space:pre-wrap">function doPost(e) {
@@ -235,7 +241,7 @@ function doGet(e) {
   ).setMimeType(ContentService.MimeType.JSON);
 }</pre>
       </div>
-      <p style="margin-top:10px;font-size:13px;color:#8e8e93">⚠️ 已部署過請點「部署」→「管理部署作業」→ 編輯 → 版本選「新版本」→ 部署，URL 不變。</p>
+      <p style="margin-top:10px;font-size:13px;color:#8e8e93">已部署過請點「部署」→「管理部署作業」→ 編輯 → 版本選「新版本」→ 部署，URL 不變。</p>
     </div>
     <div class="sheets-step">
       <h3>步驟三：貼上 Web App URL</h3>
@@ -248,8 +254,8 @@ function doGet(e) {
     <div class="sheets-step">
       <h3>上傳：手機 → Sheets</h3>
       <p style="margin-bottom:12px">只上傳尚未同步過的新紀錄，不重複。</p>
-      <button class="btn-primary" onclick="syncToSheets()">同步新紀錄到 Sheets</button>
-      <button class="btn-secondary" style="width:100%;margin-top:8px" onclick="resetSyncState()">重置同步狀態</button>
+      <button class="btn-primary" onclick="syncToSheets()">同步所有新紀錄到 Sheets</button>
+      <button class="btn-secondary" style="width:100%;margin-top:8px" onclick="resetSyncState()">重置同步狀態（下次全部重新上傳）</button>
       <div class="sync-status" id="sync-result"></div>
     </div>
     <div class="sheets-step">
@@ -280,7 +286,7 @@ function doGet(e) {
         <input type="url" id="cfg-docurl" placeholder="https://docs.google.com/document/d/..." style="flex:1;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:14px">
         <button class="btn-secondary" onclick="addDoc()">新增</button>
       </div>
-      <div id="doc-status" style="font-size:13px;color:#8e8e93;margin-top:8px"></div>
+      <div id="doc-status" style="font-size:13px;margin-top:8px"></div>
     </div>
     <div class="card">
       <div class="card-title">使用說明</div>
@@ -307,511 +313,600 @@ function doGet(e) {
 
 </div>
 <div id="toast"></div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const DEFAULT_EXERCISES={chest:['Bench Press','Overhead Press','Incline Dumbbell Press'],back:['Chin-up','Rowing'],legs:['Deadlift','Squat'],arms:['Biceps Curl','Triceps Reverse Pull'],core:['Plank','Crunch'],cardio:['跑步','跳繩']};
-const groupNames={chest:'胸/推',back:'背/拉',legs:'腿',arms:'手臂',core:'核心',cardio:'有氧'};
-const groupColors={chest:'#1565c0',back:'#2e7d32',legs:'#e65100',arms:'#6a1b9a',core:'#880e4f',cardio:'#bf360c'};
+var DEF = {
+  chest:  ['Bench Press','Overhead Press','Incline Dumbbell Press'],
+  back:   ['Chin-up','Rowing'],
+  legs:   ['Deadlift','Squat'],
+  arms:   ['Biceps Curl','Triceps Reverse Pull'],
+  core:   ['Plank','Crunch'],
+  cardio: ['跑步','跳繩']
+};
+var GN = {chest:'胸/推',back:'背/拉',legs:'腿',arms:'手臂',core:'核心',cardio:'有氧'};
+var GC = {chest:'#1565c0',back:'#2e7d32',legs:'#e65100',arms:'#6a1b9a',core:'#880e4f',cardio:'#bf360c'};
 
-let data=[],customExercises={},selectedBand=null,histFilter='all',analysisDays=8;
-let trendChart=null,distChart=null;
+var data = [], custom = {}, band = null, histFil = 'all', period = 8;
+var TC = null, DC = null;
 
-function ls(k,v){if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}
-function loadStorage(){
-  try{data=JSON.parse(ls('wd_data')||'[]')}catch(e){data=[]}
-  try{customExercises=JSON.parse(ls('wd_custom')||'{}')}catch(e){customExercises={}}
-  const url=ls('wd_sheets_url');if(url)document.getElementById('sheets-url').value=url;
-  const key=ls('wd_apikey');if(key)document.getElementById('cfg-apikey').value=key;
-}
-function save(){ls('wd_data',JSON.stringify(data))}
-function saveCustom(){ls('wd_custom',JSON.stringify(customExercises))}
-function todayStr(){return new Date().toISOString().slice(0,10)}
-function getExercises(g){return[...(DEFAULT_EXERCISES[g]||[]),...(customExercises[g]||[])]}
+function lsGet(k){ return localStorage.getItem(k); }
+function lsSet(k,v){ localStorage.setItem(k,v); }
 
-function toast(msg,err){
-  const el=document.getElementById('toast');
-  el.textContent=msg;el.style.background=err?'rgba(255,59,48,0.85)':'rgba(0,0,0,0.75)';
-  el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)
-}
-
-function initForm(){
-  document.getElementById('inp-date').value=todayStr();
-  rebuildExerciseSelect();
+function loadStorage() {
+  try { data = JSON.parse(lsGet('wd_data') || '[]'); } catch(e) { data = []; }
+  try { custom = JSON.parse(lsGet('wd_custom') || '{}'); } catch(e) { custom = {}; }
+  var u = lsGet('wd_sheets_url'); if (u) document.getElementById('sheets-url').value = u;
+  var k = lsGet('wd_apikey'); if (k) document.getElementById('cfg-apikey').value = k;
 }
 
-function rebuildExerciseSelect(){
-  const g=document.getElementById('inp-group').value;
-  const sel=document.getElementById('inp-exercise-select');
-  sel.innerHTML=getExercises(g).map(e=>`<option value="${e}">${e}</option>`).join('')+'<option value="__new__">＋ 新增動作</option>';
-  refreshExerciseUI();
+function save() { lsSet('wd_data', JSON.stringify(data)); }
+function saveCustom() { lsSet('wd_custom', JSON.stringify(custom)); }
+
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+function pad(n) { return n < 10 ? '0'+n : ''+n; }
+
+function getEx(g) { return (DEF[g]||[]).concat(custom[g]||[]); }
+
+function toast(msg, err) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = err ? 'rgba(255,59,48,0.85)' : 'rgba(0,0,0,0.75)';
+  el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 2200);
 }
 
-function onGroupChange(){selectedBand=null;rebuildExerciseSelect()}
-function onExerciseChange(){refreshExerciseUI()}
-
-function refreshExerciseUI(){
-  const val=document.getElementById('inp-exercise-select').value;
-  const isChinup=val==='Chin-up',isNew=val==='__new__';
-  document.getElementById('new-move-area').style.display=isNew?'block':'none';
-  document.getElementById('weight-area').style.display=isChinup?'none':'block';
-  document.getElementById('chinup-area').style.display=isChinup?'block':'none';
-  if(isChinup){selectedBand=null;document.querySelectorAll('#band-btns .band-btn').forEach(b=>b.classList.remove('selected'))}
+function showTab(id, btn) {
+  var ss = document.querySelectorAll('.section');
+  for (var i = 0; i < ss.length; i++) ss[i].classList.remove('active');
+  var bs = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < bs.length; i++) bs[i].classList.remove('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'analysis') { renderMetrics(); renderTrendSel(); renderTrend(); renderDist(); }
+  if (id === 'settings') { renderDocList(); }
 }
 
-function selectBand(n,btn){
-  selectedBand=n;
-  document.querySelectorAll('#band-btns .band-btn').forEach(b=>b.classList.remove('selected'));
+function initForm() {
+  document.getElementById('inp-date').value = todayStr();
+  rebuildSel();
+}
+
+function rebuildSel() {
+  var g = document.getElementById('inp-group').value;
+  var list = getEx(g);
+  var h = '';
+  for (var i = 0; i < list.length; i++) h += '<option value="'+list[i]+'">'+list[i]+'</option>';
+  h += '<option value="__new__">＋ 新增動作</option>';
+  document.getElementById('inp-exercise-select').innerHTML = h;
+  syncUI();
+}
+
+function onGroupChange() { band = null; rebuildSel(); }
+function onExerciseChange() { syncUI(); }
+
+function syncUI() {
+  var v = document.getElementById('inp-exercise-select').value;
+  var chin = (v === 'Chin-up'), isnew = (v === '__new__');
+  document.getElementById('new-move-area').style.display = isnew ? 'block' : 'none';
+  document.getElementById('weight-area').style.display = chin ? 'none' : 'block';
+  document.getElementById('chinup-area').style.display = chin ? 'block' : 'none';
+  if (chin) {
+    band = null;
+    var bs = document.querySelectorAll('#band-btns .band-btn');
+    for (var i = 0; i < bs.length; i++) bs[i].classList.remove('selected');
+  }
+}
+
+function selectBand(n, btn) {
+  band = n;
+  var bs = document.querySelectorAll('#band-btns .band-btn');
+  for (var i = 0; i < bs.length; i++) bs[i].classList.remove('selected');
   btn.classList.add('selected');
 }
 
-function saveNewMovement(){
-  const g=document.getElementById('inp-group').value;
-  const name=document.getElementById('inp-new-exercise').value.trim();
-  if(!name){toast('請輸入動作名稱',true);return}
-  if(!customExercises[g])customExercises[g]=[];
-  if(getExercises(g).includes(name)){toast('此動作已存在',true);return}
-  customExercises[g].push(name);saveCustom();
-  rebuildExerciseSelect();
-  document.getElementById('inp-exercise-select').value=name;
-  document.getElementById('inp-new-exercise').value='';
-  refreshExerciseUI();toast('已新增動作：'+name);
+function saveNewMovement() {
+  var g = document.getElementById('inp-group').value;
+  var name = document.getElementById('inp-new-exercise').value.trim();
+  if (!name) { toast('請輸入動作名稱', true); return; }
+  if (!custom[g]) custom[g] = [];
+  if (getEx(g).indexOf(name) >= 0) { toast('此動作已存在', true); return; }
+  custom[g].push(name); saveCustom();
+  rebuildSel();
+  document.getElementById('inp-exercise-select').value = name;
+  document.getElementById('inp-new-exercise').value = '';
+  syncUI();
+  toast('已新增動作：'+name);
 }
 
-function addEntry(){
-  const d=document.getElementById('inp-date').value;
-  const g=document.getElementById('inp-group').value;
-  const exSel=document.getElementById('inp-exercise-select').value;
-  if(!d){toast('請選擇日期',true);return}
-  if(exSel==='__new__'){toast('請先儲存新動作',true);return}
-  const isChinup=exSel==='Chin-up';
-  let weight,reps,sets;
-  if(isChinup){
-    if(!selectedBand){toast('請選擇彈力繩粗度',true);return}
-    weight=selectedBand;
-    reps=parseInt(document.getElementById('inp-reps-chinup').value);
-    sets=parseInt(document.getElementById('inp-sets-chinup').value)||1;
-    if(!reps||reps<1){toast('請輸入次數',true);return}
-  }else{
-    weight=parseFloat(document.getElementById('inp-weight').value);
-    if(isNaN(weight)||weight<0){toast('請輸入重量',true);return}
-    reps=parseInt(document.getElementById('inp-reps').value);
-    if(!reps||reps<1){toast('請輸入次數',true);return}
-    sets=parseInt(document.getElementById('inp-sets').value)||1;
+function addEntry() {
+  var d = document.getElementById('inp-date').value;
+  var g = document.getElementById('inp-group').value;
+  var ex = document.getElementById('inp-exercise-select').value;
+  if (!d) { toast('請選擇日期', true); return; }
+  if (ex === '__new__') { toast('請先儲存新動作', true); return; }
+  var chin = (ex === 'Chin-up');
+  var weight, reps, sets;
+  if (chin) {
+    if (!band) { toast('請選擇彈力繩粗度', true); return; }
+    weight = band;
+    reps = parseInt(document.getElementById('inp-reps-chinup').value);
+    sets = parseInt(document.getElementById('inp-sets-chinup').value) || 1;
+    if (!reps || reps < 1) { toast('請輸入次數', true); return; }
+  } else {
+    weight = parseFloat(document.getElementById('inp-weight').value);
+    if (isNaN(weight) || weight < 0) { toast('請輸入重量', true); return; }
+    reps = parseInt(document.getElementById('inp-reps').value);
+    if (!reps || reps < 1) { toast('請輸入次數', true); return; }
+    sets = parseInt(document.getElementById('inp-sets').value) || 1;
   }
-  const newSets=Array.from({length:sets},()=>({weight,reps}));
-  const existing=data.find(x=>x.date===d&&x.exercise===exSel);
-  if(existing){existing.sets.push(...newSets)}
-  else{data.push({id:Date.now(),date:d,group:g,exercise:exSel,isChinup,sets:newSets})}
-  save();render();
-  const lbl=isChinup?`彈力繩${weight}×${reps}次×${sets}組`:`${weight}kg×${reps}次×${sets}組`;
-  toast('已新增 '+exSel+' '+lbl);
-  if(isChinup){document.getElementById('inp-reps-chinup').value='';document.getElementById('inp-sets-chinup').value='1'}
-  else{document.getElementById('inp-reps').value='';document.getElementById('inp-sets').value='1'}
+  var ns = [];
+  for (var i = 0; i < sets; i++) ns.push({weight: weight, reps: reps});
+  var entry = null;
+  for (var i = 0; i < data.length; i++) {
+    if (data[i].date === d && data[i].exercise === ex) { entry = data[i]; break; }
+  }
+  if (entry) {
+    for (var i = 0; i < ns.length; i++) entry.sets.push(ns[i]);
+  } else {
+    data.push({id: Date.now(), date: d, group: g, exercise: ex, isChinup: chin, sets: ns});
+  }
+  save(); render();
+  var lbl = chin ? '彈力繩'+weight+'x'+reps+'次x'+sets+'組' : weight+'kgx'+reps+'次x'+sets+'組';
+  toast('已新增 '+ex+' '+lbl);
+  if (chin) {
+    document.getElementById('inp-reps-chinup').value = '';
+    document.getElementById('inp-sets-chinup').value = '1';
+  } else {
+    document.getElementById('inp-reps').value = '';
+    document.getElementById('inp-sets').value = '1';
+  }
 }
 
-function addQuick(){
-  if(!data.length){toast('還沒有紀錄可複製',true);return}
-  const last=data[data.length-1];
-  const lastSet=last.sets[last.sets.length-1];
-  document.getElementById('inp-group').value=last.group;
-  rebuildExerciseSelect();
-  document.getElementById('inp-exercise-select').value=last.exercise;
-  refreshExerciseUI();
-  if(last.isChinup){
-    selectedBand=lastSet.weight;
-    document.querySelectorAll('#band-btns .band-btn').forEach(b=>{if(parseInt(b.textContent)===lastSet.weight)b.classList.add('selected')});
-    document.getElementById('inp-reps-chinup').value=lastSet.reps;
-    document.getElementById('inp-sets-chinup').value='1';
-  }else{
-    document.getElementById('inp-weight').value=lastSet.weight;
-    document.getElementById('inp-reps').value=lastSet.reps;
-    document.getElementById('inp-sets').value='1';
+function addQuick() {
+  if (!data.length) { toast('還沒有紀錄可複製', true); return; }
+  var last = data[data.length-1];
+  var ls2 = last.sets[last.sets.length-1];
+  document.getElementById('inp-group').value = last.group;
+  rebuildSel();
+  document.getElementById('inp-exercise-select').value = last.exercise;
+  syncUI();
+  if (last.isChinup) {
+    band = ls2.weight;
+    var bs = document.querySelectorAll('#band-btns .band-btn');
+    for (var i = 0; i < bs.length; i++) {
+      if (parseInt(bs[i].textContent) === ls2.weight) bs[i].classList.add('selected');
+    }
+    document.getElementById('inp-reps-chinup').value = ls2.reps;
+    document.getElementById('inp-sets-chinup').value = '1';
+  } else {
+    document.getElementById('inp-weight').value = ls2.weight;
+    document.getElementById('inp-reps').value = ls2.reps;
+    document.getElementById('inp-sets').value = '1';
   }
   toast('已複製：'+last.exercise);
 }
 
-function deleteSet(entryId,idx){
-  const entry=data.find(x=>x.id===entryId);
-  if(!entry)return;
-  entry.sets.splice(idx,1);
-  if(!entry.sets.length)data=data.filter(x=>x.id!==entryId);
-  save();render();
+function deleteSet(eid, idx) {
+  var entry = null;
+  for (var i = 0; i < data.length; i++) { if (data[i].id === eid) { entry = data[i]; break; } }
+  if (!entry) return;
+  entry.sets.splice(idx, 1);
+  if (!entry.sets.length) { var nd = []; for(var i=0;i<data.length;i++) if(data[i].id!==eid) nd.push(data[i]); data=nd; }
+  save(); render();
 }
 
-function buildEntryHTML(entry,showDate){
-  const chips=entry.sets.map((s,i)=>{
-    const lbl=entry.isChinup?`彈力繩${s.weight}×${s.reps}次`:`${s.weight}kg×${s.reps}次`;
-    return `<span class="chip">${lbl}<button class="chip-del" onclick="deleteSet(${entry.id},${i})">✕</button></span>`;
-  }).join('');
-  const datePart=showDate?`<span class="log-meta">${entry.date}</span>`:'';
-  return `<div class="log-item">
-    <div class="log-top">
-      <span class="log-name">${entry.exercise}<span class="badge badge-${entry.group}">${groupNames[entry.group]}</span></span>
-      <div class="log-right">${datePart}<span class="log-meta">${entry.sets.length}組</span></div>
-    </div>
-    <div class="sets-chips">${chips}</div>
-  </div>`;
-}
-
-function renderToday(){
-  const t=todayStr(),items=data.filter(x=>x.date===t);
-  const el=document.getElementById('today-list');
-  el.innerHTML=items.length?items.map(e=>buildEntryHTML(e,false)).join(''):'<div style="text-align:center;padding:24px;color:#8e8e93;font-size:14px">今天還沒有紀錄</div>';
-}
-
-function filterHistory(f,el){
-  histFilter=f;
-  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');renderHistory();
-}
-
-function renderHistory(){
-  const filtered=histFilter==='all'?data:data.filter(x=>x.group===histFilter);
-  const el=document.getElementById('history-list');
-  if(!filtered.length){el.innerHTML='<div style="text-align:center;padding:24px;color:#8e8e93;font-size:14px">沒有符合的紀錄</div>';return}
-  const sorted=[...filtered].sort((a,b)=>b.date.localeCompare(a.date));
-  let html='',lastDate='';
-  for(const e of sorted){
-    if(e.date!==lastDate){html+=`<div class="date-sep">${e.date}</div>`;lastDate=e.date}
-    html+=buildEntryHTML(e,false);
+function entryHTML(e, showDate) {
+  var chips = '';
+  for (var i = 0; i < e.sets.length; i++) {
+    var s = e.sets[i];
+    var lbl = e.isChinup ? '彈力繩'+s.weight+'x'+s.reps+'次' : s.weight+'kgx'+s.reps+'次';
+    chips += '<span class="chip">'+lbl+'<button class="chip-del" onclick="deleteSet('+e.id+','+i+')">✕</button></span>';
   }
-  el.innerHTML=html;
+  var dp = showDate ? '<span class="log-meta">'+e.date+'</span>' : '';
+  return '<div class="log-item">'
+    +'<div class="log-top"><span class="log-name">'+e.exercise+'<span class="badge badge-'+e.group+'">'+GN[e.group]+'</span></span>'
+    +'<div class="log-right">'+dp+'<span class="log-meta">'+e.sets.length+'組</span></div></div>'
+    +'<div class="sets-chips">'+chips+'</div></div>';
 }
 
-function setPeriod(days,btn){
-  analysisDays=days;
-  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+function renderToday() {
+  var t = todayStr();
+  var items = []; for (var i=0;i<data.length;i++) if(data[i].date===t) items.push(data[i]);
+  var el = document.getElementById('today-list');
+  if (!items.length) { el.innerHTML = '<div class="empty">今天還沒有紀錄</div>'; return; }
+  var h = ''; for (var i=0;i<items.length;i++) h += entryHTML(items[i], false);
+  el.innerHTML = h;
+}
+
+function filterHistory(f, el) {
+  histFil = f;
+  var ps = document.querySelectorAll('.filter-pill');
+  for (var i=0;i<ps.length;i++) ps[i].classList.remove('active');
+  el.classList.add('active');
+  renderHistory();
+}
+
+function renderHistory() {
+  var fil = histFil==='all' ? data : data.filter(function(x){ return x.group===histFil; });
+  var el = document.getElementById('history-list');
+  if (!fil.length) { el.innerHTML='<div class="empty">沒有符合的紀錄</div>'; return; }
+  var sorted = fil.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+  var h='', ld='';
+  for (var i=0;i<sorted.length;i++) {
+    if (sorted[i].date !== ld) { h += '<div class="date-sep">'+sorted[i].date+'</div>'; ld=sorted[i].date; }
+    h += entryHTML(sorted[i], false);
+  }
+  el.innerHTML = h;
+}
+
+function setPeriod(days, btn) {
+  period = days;
+  var bs = document.querySelectorAll('.period-btn');
+  for (var i=0;i<bs.length;i++) bs[i].classList.remove('active');
   btn.classList.add('active');
-  renderMetrics();renderTrend();renderDist();
+  renderMetrics(); renderTrend(); renderDist();
 }
 
-function periodStart(){
-  if(analysisDays===0)return'';
-  const d=new Date();d.setDate(d.getDate()-(analysisDays-1));return d.toISOString().slice(0,10);
+function pStart() {
+  if (period===0) return '';
+  var d = new Date(); d.setDate(d.getDate()-(period-1));
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 }
 
-function filteredData(){
-  const start=periodStart();
-  return start?data.filter(x=>x.date>=start):data;
+function fData() {
+  var s = pStart(); if (!s) return data;
+  return data.filter(function(x){ return x.date>=s; });
 }
 
-function renderMetrics(){
-  const fd=filteredData();
-  document.getElementById('m-total').textContent=fd.reduce((s,x)=>s+x.sets.length,0);
-  document.getElementById('m-week').textContent=new Set(fd.map(x=>x.date)).size;
-  let mx=0;fd.forEach(x=>{if(!x.isChinup)x.sets.forEach(s=>{if(s.weight>mx)mx=s.weight})});
-  document.getElementById('m-max').textContent=mx;
+function renderMetrics() {
+  var fd = fData(), tot=0, days={}, mx=0;
+  for (var i=0;i<fd.length;i++) {
+    tot += fd[i].sets.length;
+    days[fd[i].date] = 1;
+    if (!fd[i].isChinup) for (var j=0;j<fd[i].sets.length;j++) if(fd[i].sets[j].weight>mx) mx=fd[i].sets[j].weight;
+  }
+  document.getElementById('m-total').textContent = tot;
+  document.getElementById('m-week').textContent = Object.keys(days).length;
+  document.getElementById('m-max').textContent = mx;
 }
 
-function renderTrendSelect(){
-  const sel=document.getElementById('trend-select');
-  const list=[...new Set(data.map(x=>x.exercise))];
-  const cur=sel.value;
-  sel.innerHTML=list.length?list.map(e=>`<option value="${e}">${e}</option>`).join(''):'<option value="">（無資料）</option>';
-  if(cur&&list.includes(cur))sel.value=cur;
+function renderTrendSel() {
+  var sel = document.getElementById('trend-select');
+  var seen={}, list=[];
+  for (var i=0;i<data.length;i++) if(!seen[data[i].exercise]){ seen[data[i].exercise]=1; list.push(data[i].exercise); }
+  var cur=sel.value, h='';
+  for (var i=0;i<list.length;i++) h+='<option value="'+list[i]+'">'+list[i]+'</option>';
+  sel.innerHTML = list.length ? h : '<option value="">（無資料）</option>';
+  if (cur && seen[cur]) sel.value = cur;
 }
 
-function renderTrend(){
-  const sel=document.getElementById('trend-select').value;
-  const items=filteredData().filter(x=>x.exercise===sel).sort((a,b)=>a.date.localeCompare(b.date));
-  const isChinup=items.length&&items[0].isChinup;
-  const ctx=document.getElementById('trendChart').getContext('2d');
-  if(trendChart){trendChart.destroy();trendChart=null}
-  trendChart=new Chart(ctx,{type:'line',data:{labels:items.map(x=>x.date.slice(5)),datasets:[{data:items.map(x=>Math.max(...x.sets.map(s=>s.weight))),borderColor:'#007aff',backgroundColor:'rgba(0,122,255,0.08)',tension:0.3,pointRadius:5,pointBackgroundColor:'#007aff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,ticks:{callback:v=>isChinup?'繩'+v:v+'kg'}}}}});
+function renderTrend() {
+  var sel = document.getElementById('trend-select').value;
+  var fd = fData();
+  var items=[], chin=false;
+  for (var i=0;i<fd.length;i++) if(fd[i].exercise===sel){ items.push(fd[i]); if(fd[i].isChinup) chin=true; }
+  items.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  var labels=[], vals=[];
+  for (var i=0;i<items.length;i++) {
+    labels.push(items[i].date.slice(5));
+    var mx=0; for(var j=0;j<items[i].sets.length;j++) if(items[i].sets[j].weight>mx) mx=items[i].sets[j].weight;
+    vals.push(mx);
+  }
+  var ctx = document.getElementById('trendChart').getContext('2d');
+  if (TC) { TC.destroy(); TC=null; }
+  TC = new Chart(ctx, {
+    type:'line',
+    data:{labels:labels,datasets:[{data:vals,borderColor:'#007aff',backgroundColor:'rgba(0,122,255,0.08)',tension:0.3,pointRadius:5,pointBackgroundColor:'#007aff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:false,ticks:{callback:function(v){ return chin?'繩'+v:v+'kg'; }}}}}
+  });
 }
 
-function renderDist(){
-  const counts={};Object.keys(groupNames).forEach(k=>counts[k]=0);
-  filteredData().forEach(x=>counts[x.group]=(counts[x.group]||0)+x.sets.length);
-  const ctx=document.getElementById('distChart').getContext('2d');
-  if(distChart){distChart.destroy();distChart=null}
-  distChart=new Chart(ctx,{type:'bar',data:{labels:Object.values(groupNames),datasets:[{data:Object.keys(groupNames).map(k=>counts[k]),backgroundColor:Object.keys(groupNames).map(k=>groupColors[k]),borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}});
+function renderDist() {
+  var fd=fData(), counts={}, keys=Object.keys(GN);
+  for(var i=0;i<keys.length;i++) counts[keys[i]]=0;
+  for(var i=0;i<fd.length;i++) counts[fd[i].group]=(counts[fd[i].group]||0)+fd[i].sets.length;
+  var labels=[], vals=[], colors=[];
+  for(var i=0;i<keys.length;i++){ labels.push(GN[keys[i]]); vals.push(counts[keys[i]]); colors.push(GC[keys[i]]); }
+  var ctx = document.getElementById('distChart').getContext('2d');
+  if (DC) { DC.destroy(); DC=null; }
+  DC = new Chart(ctx, {
+    type:'bar',
+    data:{labels:labels,datasets:[{data:vals,backgroundColor:colors,borderRadius:6}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+  });
 }
 
-function render(){renderToday();renderHistory();renderMetrics();renderTrendSelect();renderTrend();renderDist()}
+function render() { renderToday(); renderHistory(); renderMetrics(); renderTrendSel(); renderTrend(); renderDist(); }
 
-function showTab(id,btn){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  btn.classList.add('active');
-  if(id==='analysis'){renderMetrics();renderTrendSelect();renderTrend();renderDist()}
-  if(id==='settings'){renderDocList()}
-}
-
-// ── Export ─────────────────────────────────────────────
-function exportCSV(){
-  if(!data.length){toast('沒有資料可匯出',true);return}
-  const rows=['\uFEFF日期,肌群,動作,組次,重量/彈力繩,次數'];
-  data.forEach(x=>x.sets.forEach((s,i)=>rows.push(`${x.date},${groupNames[x.group]},${x.exercise},第${i+1}組,${x.isChinup?'彈力繩'+s.weight:s.weight+'kg'},${s.reps}`)));
-  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('\n'));a.download='workout_'+todayStr()+'.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);
+function exportCSV() {
+  if (!data.length) { toast('沒有資料', true); return; }
+  var rows=['\uFEFF日期,肌群,動作,組次,重量,次數'];
+  for(var i=0;i<data.length;i++){
+    var x=data[i];
+    for(var j=0;j<x.sets.length;j++){
+      var s=x.sets[j];
+      rows.push(x.date+','+GN[x.group]+','+x.exercise+',第'+(j+1)+'組,'+(x.isChinup?'彈力繩'+s.weight:s.weight+'kg')+','+s.reps);
+    }
+  }
+  var a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('\n'));
+  a.download='workout_'+todayStr()+'.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
   toast('CSV 已下載');
 }
 
-function exportJSON(){
-  if(!data.length){toast('沒有資料可匯出',true);return}
-  const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));a.download='workout_'+todayStr()+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);
+function exportJSON() {
+  if (!data.length) { toast('沒有資料', true); return; }
+  var a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+  a.download='workout_'+todayStr()+'.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
   toast('JSON 已下載');
 }
 
-// ── Google Sheets ───────────────────────────────────────
-function saveSheetUrl(){
-  const url=document.getElementById('sheets-url').value.trim();
-  if(!url){toast('請貼上 Web App URL',true);return}
-  ls('wd_sheets_url',url);
-  const el=document.getElementById('sync-status');el.textContent='✓ URL 已儲存';el.className='sync-status sync-ok';
+// Normalise any date format Sheets may return
+function normDate(raw) {
+  if (raw === null || raw === undefined || raw === '') return '';
+  // Excel serial number
+  if (typeof raw === 'number') {
+    var ep = new Date(1899, 11, 30);
+    var d = new Date(ep.getTime() + raw * 86400000);
+    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  }
+  var s = String(raw).trim();
+  // ISO string with time component — use LOCAL date parts (avoids UTC offset)
+  if (s.indexOf('T') >= 0) {
+    var d = new Date(s);
+    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  }
+  // Plain YYYY-MM-DD string
+  return s.slice(0, 10);
+}
+
+function getSynced() {
+  try { return new Set(JSON.parse(lsGet('wd_synced') || '[]')); } catch(e) { return new Set(); }
+}
+function saveSynced(s) { lsSet('wd_synced', JSON.stringify(Array.from(s))); }
+
+function buildRows(entries) {
+  var synced = getSynced(), rows=[], keys=[];
+  for (var i=0;i<entries.length;i++) {
+    var x=entries[i];
+    for (var j=0;j<x.sets.length;j++) {
+      var k=x.id+':'+j;
+      if (!synced.has(k)) {
+        var s=x.sets[j];
+        rows.push([x.date, GN[x.group], x.exercise, '第'+(j+1)+'組', x.isChinup?'彈力繩'+s.weight:s.weight, s.reps]);
+        keys.push(k);
+      }
+    }
+  }
+  return {rows:rows, keys:keys, synced:synced};
+}
+
+function saveSheetUrl() {
+  var url=document.getElementById('sheets-url').value.trim();
+  if (!url) { toast('請貼上 Web App URL',true); return; }
+  lsSet('wd_sheets_url',url);
+  var el=document.getElementById('sync-status'); el.textContent='✓ URL 已儲存'; el.className='sync-status sync-ok';
   toast('URL 已儲存');
 }
 
-async function syncToSheets(){
-  const url=ls('wd_sheets_url');
-  if(!url){toast('請先設定 Google Sheets URL',true);return}
-  if(!data.length){toast('沒有資料可同步',true);return}
-  const el=document.getElementById('sync-result');
-  let synced;try{synced=new Set(JSON.parse(ls('wd_synced')||'[]'))}catch(e){synced=new Set()}
-  const rows=[],newKeys=[];
-  data.forEach(x=>x.sets.forEach((s,i)=>{
-    const key=`${x.id}:${i}`;
-    if(!synced.has(key)){
-      rows.push([String(x.date).slice(0,10),groupNames[x.group],x.exercise,`第${i+1}組`,x.isChinup?`彈力繩${s.weight}`:s.weight,s.reps]);
-      newKeys.push(key);
-    }
-  }));
-  if(!rows.length){el.textContent='✓ 沒有新紀錄，全部已同步';el.className='sync-status sync-ok';toast('已是最新');return}
-  el.textContent=`同步中（${rows.length} 筆）...`;el.className='sync-status';
-  try{
-    const res=await fetch(url,{method:'POST',body:JSON.stringify(rows)});
-    const json=await res.json();
-    newKeys.forEach(k=>synced.add(k));ls('wd_synced',JSON.stringify([...synced]));
-    el.textContent=`✓ 成功同步 ${json.added} 筆！`;el.className='sync-status sync-ok';toast('同步成功！');
-  }catch(e){el.textContent='✗ 同步失敗，請確認 URL';el.className='sync-status sync-err';toast('同步失敗',true)}
+function syncToday() {
+  var url=lsGet('wd_sheets_url');
+  var el=document.getElementById('today-sync-status');
+  if (!url) { el.textContent='請先到同步分頁設定 Sheets URL'; el.style.color='#ff3b30'; setTimeout(function(){ el.textContent=''; },3000); return; }
+  var t=todayStr();
+  var te=[]; for(var i=0;i<data.length;i++) if(data[i].date===t) te.push(data[i]);
+  if (!te.length) { el.textContent='今天還沒有紀錄'; el.style.color='#8e8e93'; setTimeout(function(){ el.textContent=''; },2000); return; }
+  var r=buildRows(te);
+  if (!r.rows.length) { el.textContent='✓ 今日紀錄已全部上傳'; el.style.color='#34c759'; setTimeout(function(){ el.textContent=''; },2500); return; }
+  el.textContent='上傳中（'+r.rows.length+' 筆）...'; el.style.color='#8e8e93';
+  fetch(url,{method:'POST',body:JSON.stringify(r.rows)})
+    .then(function(res){ return res.json(); })
+    .then(function(json){
+      for(var i=0;i<r.keys.length;i++) r.synced.add(r.keys[i]);
+      saveSynced(r.synced);
+      el.textContent='✓ 已上傳今日 '+json.added+' 筆'; el.style.color='#34c759';
+      setTimeout(function(){ el.textContent=''; },3000);
+      toast('今日紀錄已上傳！');
+    })
+    .catch(function(){
+      el.textContent='✗ 上傳失敗'; el.style.color='#ff3b30';
+      setTimeout(function(){ el.textContent=''; },3000);
+    });
 }
 
-async function syncToday(){
-  const url=ls('wd_sheets_url');
-  const el=document.getElementById('today-sync-status');
-  if(!url){
-    el.textContent='請先到同步分頁設定 Sheets URL';el.style.color='#ff3b30';
-    setTimeout(()=>el.textContent='',3000);return;
-  }
-  const t=todayStr();
-  const todayEntries=data.filter(x=>x.date===t);
-  if(!todayEntries.length){el.textContent='今天還沒有紀錄';el.style.color='#8e8e93';setTimeout(()=>el.textContent='',2000);return}
-
-  let synced;try{synced=new Set(JSON.parse(ls('wd_synced')||'[]'))}catch(e){synced=new Set()}
-  const rows=[],newKeys=[];
-  todayEntries.forEach(x=>x.sets.forEach((s,i)=>{
-    const key=;
-    if(!synced.has(key)){
-      rows.push([String(x.date).slice(0,10),groupNames[x.group],x.exercise,,x.isChinup?:s.weight,s.reps]);
-      newKeys.push(key);
-    }
-  }));
-  if(!rows.length){el.textContent='✓ 今日紀錄已全部上傳過了';el.style.color='#34c759';setTimeout(()=>el.textContent='',2500);return}
-  el.textContent=;el.style.color='#8e8e93';
-  try{
-    const res=await fetch(url,{method:'POST',body:JSON.stringify(rows)});
-    const json=await res.json();
-    newKeys.forEach(k=>synced.add(k));ls('wd_synced',JSON.stringify([...synced]));
-    el.textContent=;el.style.color='#34c759';
-    setTimeout(()=>el.textContent='',3000);
-    toast('今日紀錄已上傳！');
-  }catch(e){
-    el.textContent='✗ 上傳失敗，請確認 Sheets URL';el.style.color='#ff3b30';
-    setTimeout(()=>el.textContent='',3000);
-  }
+function syncToSheets() {
+  var url=lsGet('wd_sheets_url');
+  if (!url) { toast('請先設定 Sheets URL',true); return; }
+  if (!data.length) { toast('沒有資料',true); return; }
+  var el=document.getElementById('sync-result');
+  var r=buildRows(data);
+  if (!r.rows.length) { el.textContent='✓ 全部已同步'; el.className='sync-status sync-ok'; toast('已是最新'); return; }
+  el.textContent='同步中（'+r.rows.length+' 筆）...'; el.className='sync-status';
+  fetch(url,{method:'POST',body:JSON.stringify(r.rows)})
+    .then(function(res){ return res.json(); })
+    .then(function(json){
+      for(var i=0;i<r.keys.length;i++) r.synced.add(r.keys[i]);
+      saveSynced(r.synced);
+      el.textContent='✓ 成功同步 '+json.added+' 筆！'; el.className='sync-status sync-ok'; toast('同步成功！');
+    })
+    .catch(function(){ el.textContent='✗ 同步失敗'; el.className='sync-status sync-err'; toast('同步失敗',true); });
 }
 
-function resetSyncState(){
-  ls('wd_synced','[]');
-  const el=document.getElementById('sync-result');el.textContent='✓ 已重置，下次將上傳所有紀錄';el.className='sync-status sync-ok';
+function resetSyncState() {
+  lsSet('wd_synced','[]');
+  var el=document.getElementById('sync-result'); el.textContent='✓ 已重置，下次將上傳所有紀錄'; el.className='sync-status sync-ok';
   toast('同步狀態已重置');
 }
 
-function normaliseDate(raw){
-  if(raw===null||raw===undefined||raw==='')return'';
-  // Case 1: JS Date object or ISO string with T (Sheets serialised date)
-  if(raw instanceof Date||(typeof raw==='string'&&raw.includes('T'))){
-    const d=new Date(raw);
-    // Use local date parts to avoid timezone shift
-    const y=d.getFullYear();
-    const m=String(d.getMonth()+1).padStart(2,'0');
-    const dd=String(d.getDate()).padStart(2,'0');
-    return ;
-  }
-  // Case 2: Excel serial date number (days since 1899-12-30)
-  if(typeof raw==='number'){
-    const excelEpoch=new Date(1899,11,30);
-    const d=new Date(excelEpoch.getTime()+raw*86400000);
-    const y=d.getFullYear();
-    const m=String(d.getMonth()+1).padStart(2,'0');
-    const dd=String(d.getDate()).padStart(2,'0');
-    return ;
-  }
-  // Case 3: plain string YYYY-MM-DD or similar
-  return String(raw).trim().slice(0,10);
-}
-
-async function importFromSheets(){
-  const url=ls('wd_sheets_url');
-  if(!url){toast('請先設定 Google Sheets URL',true);return}
-  const el=document.getElementById('import-result');el.textContent='讀取中...';el.className='sync-status';
-  try{
-    const res=await fetch(url+'?action=get');
-    const json=await res.json();
-    if(!json.rows||!json.rows.length){el.textContent='Sheets 內沒有資料';el.className='sync-status';return}
-    const existingKeys=new Set();
-    data.forEach(x=>x.sets.forEach((s,i)=>existingKeys.add(`${x.date}|${x.exercise}|${i}`)));
-    const sheetsCounter={};let imported=0;
-    json.rows.forEach(r=>{
-      const date=normaliseDate(r[0]);
-      const exercise=String(r[2]).trim();
-      const rawWeight=String(r[4]).trim();
-      const reps=parseInt(r[5]);
-      if(!date||!exercise||isNaN(reps))return;
-      const isChinup=exercise==='Chin-up';
-      const weight=isChinup?parseInt(rawWeight.replace(/[^0-9]/g,'')):parseFloat(rawWeight);
-      if(isNaN(weight))return;
-      const gKey=`${date}|${exercise}`;
-      if(!sheetsCounter[gKey])sheetsCounter[gKey]=0;
-      const setIdx=sheetsCounter[gKey]++;
-      const key=`${date}|${exercise}|${setIdx}`;
-      if(existingKeys.has(key))return;
-      let entry=data.find(x=>x.date===date&&x.exercise===exercise);
-      if(!entry){
-        const groupKey=Object.keys(groupNames).find(k=>groupNames[k]===String(r[1]).trim())||'chest';
-        entry={id:Date.now()+Math.random(),date,group:groupKey,exercise,isChinup,sets:[]};
-        data.push(entry);
+function importFromSheets() {
+  var url=lsGet('wd_sheets_url');
+  if (!url) { toast('請先設定 Sheets URL',true); return; }
+  var el=document.getElementById('import-result'); el.textContent='讀取中...'; el.className='sync-status';
+  fetch(url+'?action=get')
+    .then(function(res){ return res.json(); })
+    .then(function(json){
+      if (!json.rows||!json.rows.length) { el.textContent='Sheets 內沒有資料'; el.className='sync-status'; return; }
+      // Build existing key index
+      var ek={};
+      for(var i=0;i<data.length;i++) for(var j=0;j<data[i].sets.length;j++) ek[data[i].date+'|'+data[i].exercise+'|'+j]=1;
+      var sc={}, imported=0;
+      for(var i=0;i<json.rows.length;i++){
+        var r=json.rows[i];
+        var date=normDate(r[0]);
+        var exercise=String(r[2]).trim();
+        var rawW=String(r[4]).trim();
+        var reps=parseInt(r[5]);
+        if(!date||!exercise||isNaN(reps)) continue;
+        var chin=(exercise==='Chin-up');
+        var weight=chin?parseInt(rawW.replace(/[^0-9]/g,'')):parseFloat(rawW);
+        if(isNaN(weight)) continue;
+        var gk=date+'|'+exercise;
+        if(!sc[gk]) sc[gk]=0;
+        var si=sc[gk]++;
+        var key=date+'|'+exercise+'|'+si;
+        if(ek[key]) continue;
+        var entry=null;
+        for(var k=0;k<data.length;k++) if(data[k].date===date&&data[k].exercise===exercise){ entry=data[k]; break; }
+        if(!entry){
+          var gkey='chest', gks=Object.keys(GN);
+          for(var k=0;k<gks.length;k++) if(GN[gks[k]]===String(r[1]).trim()){ gkey=gks[k]; break; }
+          entry={id:Date.now()+Math.random(),date:date,group:gkey,exercise:exercise,isChinup:chin,sets:[]};
+          data.push(entry);
+        }
+        entry.sets.push({weight:weight,reps:reps});
+        ek[key]=1; imported++;
       }
-      entry.sets.push({weight,reps});existingKeys.add(key);imported++;
-    });
-    save();render();
-    if(imported>0){el.textContent=`✓ 已匯入 ${imported} 筆新紀錄`;el.className='sync-status sync-ok';toast(`匯入 ${imported} 筆`)}
-    else{el.textContent='✓ 手機資料已是最新';el.className='sync-status sync-ok';toast('已是最新')}
-  }catch(e){el.textContent='✗ 讀取失敗，請確認 URL 及 Apps Script';el.className='sync-status sync-err';toast('讀取失敗',true)}
+      save(); render();
+      if(imported>0){ el.textContent='✓ 已匯入 '+imported+' 筆新紀錄'; el.className='sync-status sync-ok'; toast('匯入 '+imported+' 筆'); }
+      else{ el.textContent='✓ 手機資料已是最新'; el.className='sync-status sync-ok'; toast('已是最新'); }
+    })
+    .catch(function(){ el.textContent='✗ 讀取失敗，請確認 URL 及 Apps Script'; el.className='sync-status sync-err'; toast('讀取失敗',true); });
 }
 
-// ── Settings ────────────────────────────────────────────
-function saveSettings(){
-  const key=document.getElementById('cfg-apikey').value.trim();
-  if(!key){toast('請輸入 API Key',true);return}
-  ls('wd_apikey',key);
-  const el=document.getElementById('cfg-status');el.textContent='✓ 已儲存';el.style.color='#34c759';
-  setTimeout(()=>el.textContent='',2000);toast('API Key 已儲存');
+function saveSettings() {
+  var key=document.getElementById('cfg-apikey').value.trim();
+  if(!key){ toast('請輸入 API Key',true); return; }
+  lsSet('wd_apikey',key);
+  var el=document.getElementById('cfg-status'); el.textContent='✓ 已儲存'; el.style.color='#34c759';
+  setTimeout(function(){ el.textContent=''; },2000);
+  toast('API Key 已儲存');
 }
 
-function extractDocId(url){const m=url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);return m?m[1]:null}
+function extractDocId(url){ var m=url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/); return m?m[1]:null; }
 
-function addDoc(){
-  const url=document.getElementById('cfg-docurl').value.trim();
-  const el=document.getElementById('doc-status');
-  if(!url||!url.includes('docs.google.com/document')){el.textContent='請貼上正確的 Google Docs 網址';el.style.color='#ff3b30';return}
-  let docs=[];try{docs=JSON.parse(ls('wd_docs')||'[]')}catch(e){}
-  if(docs.find(d=>d.url===url)){el.textContent='此文件已在清單中';el.style.color='#ff3b30';return}
-  const id=extractDocId(url);
-  if(!id){el.textContent='無法解析文件 ID';el.style.color='#ff3b30';return}
-  docs.push({url,id,label:url.slice(0,55)+'...'});ls('wd_docs',JSON.stringify(docs));
+function addDoc() {
+  var url=document.getElementById('cfg-docurl').value.trim();
+  var el=document.getElementById('doc-status');
+  if(!url||url.indexOf('docs.google.com/document')<0){ el.textContent='請貼上正確的 Google Docs 網址'; el.style.color='#ff3b30'; return; }
+  var docs=[]; try{ docs=JSON.parse(lsGet('wd_docs')||'[]'); }catch(e){}
+  for(var i=0;i<docs.length;i++) if(docs[i].url===url){ el.textContent='此文件已在清單中'; el.style.color='#ff3b30'; return; }
+  var id=extractDocId(url);
+  if(!id){ el.textContent='無法解析文件 ID'; el.style.color='#ff3b30'; return; }
+  docs.push({url:url,id:id,label:url.slice(0,55)+'...'});
+  lsSet('wd_docs',JSON.stringify(docs));
   document.getElementById('cfg-docurl').value='';
-  el.textContent='✓ 已新增';el.style.color='#34c759';setTimeout(()=>el.textContent='',2000);
+  el.textContent='✓ 已新增'; el.style.color='#34c759';
+  setTimeout(function(){ el.textContent=''; },2000);
   renderDocList();
 }
 
-function removeDoc(idx){
-  let docs=[];try{docs=JSON.parse(ls('wd_docs')||'[]')}catch(e){}
-  docs.splice(idx,1);ls('wd_docs',JSON.stringify(docs));renderDocList();
+function removeDoc(idx) {
+  var docs=[]; try{ docs=JSON.parse(lsGet('wd_docs')||'[]'); }catch(e){}
+  docs.splice(idx,1); lsSet('wd_docs',JSON.stringify(docs)); renderDocList();
 }
 
-function renderDocList(){
-  let docs=[];try{docs=JSON.parse(ls('wd_docs')||'[]')}catch(e){}
-  const el=document.getElementById('doc-list');
-  if(!docs.length){el.innerHTML='<p style="font-size:13px;color:#c7c7cc;margin-bottom:4px">尚未新增任何知識庫文件</p>';return}
-  el.innerHTML=docs.map((d,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid #e5e5ea"><span style="font-size:13px;color:#3a3a3c;flex:1;word-break:break-all">${d.label}</span><button onclick="removeDoc(${i})" style="background:none;border:none;color:#ff3b30;font-size:13px;cursor:pointer;flex-shrink:0">刪除</button></div>`).join('');
+function renderDocList() {
+  var docs=[]; try{ docs=JSON.parse(lsGet('wd_docs')||'[]'); }catch(e){}
+  var el=document.getElementById('doc-list');
+  if(!docs.length){ el.innerHTML='<p style="font-size:13px;color:#c7c7cc;margin-bottom:4px">尚未新增任何知識庫文件</p>'; return; }
+  var h='';
+  for(var i=0;i<docs.length;i++){
+    h+='<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid #e5e5ea">'
+      +'<span style="font-size:13px;color:#3a3a3c;flex:1;word-break:break-all">'+docs[i].label+'</span>'
+      +'<button onclick="removeDoc('+i+')" style="background:none;border:none;color:#ff3b30;font-size:13px;cursor:pointer">刪除</button></div>';
+  }
+  el.innerHTML=h;
 }
 
-// ── AI Analysis ─────────────────────────────────────────
-async function fetchDocText(docId){
-  const res=await fetch(`https://docs.google.com/document/d/${docId}/export?format=txt`);
-  if(!res.ok)throw new Error('無法讀取文件 '+docId);
-  return await res.text();
-}
-
-function buildTrainingSummary(){
-  const fd=filteredData();
-  if(!fd.length)return'目前期間內沒有訓練紀錄。';
-  const days=analysisDays===0?'全部時間':`最近 ${analysisDays} 天`;
-  const totalSets=fd.reduce((s,x)=>s+x.sets.length,0);
-  const trainDays=new Set(fd.map(x=>x.date)).size;
-  const byEx={};
-  fd.forEach(x=>{
-    if(!byEx[x.exercise])byEx[x.exercise]={group:x.group,isChinup:x.isChinup,sessions:[],maxW:0};
-    const mw=Math.max(...x.sets.map(s=>s.weight));
-    byEx[x.exercise].sessions.push({date:x.date,sets:x.sets.length,mw});
-    if(mw>byEx[x.exercise].maxW)byEx[x.exercise].maxW=mw;
-  });
-  const lines=[`期間：${days}，共 ${trainDays} 天訓練，${totalSets} 組`,'','各動作紀錄：'];
-  Object.entries(byEx).forEach(([ex,info])=>{
-    const wLabel=info.isChinup?`彈力繩最細 ${info.maxW}`:`最大重量 ${info.maxW}kg`;
-    lines.push(`- ${ex}（${groupNames[info.group]}）：${info.sessions.length} 次訓練，${wLabel}`);
-    if(info.sessions.length>1){
-      lines.push('  進度：'+info.sessions.map(s=>`${s.date.slice(5)} ${s.mw}${info.isChinup?'號':'kg'}×${s.sets}組`).join(' → '));
-    }
-  });
+function buildSummary() {
+  var fd=fData();
+  if(!fd.length) return '目前期間內沒有訓練紀錄。';
+  var lbl=period===0?'全部時間':'最近 '+period+' 天';
+  var tot=0,days={},byEx={};
+  for(var i=0;i<fd.length;i++){
+    var x=fd[i]; tot+=x.sets.length; days[x.date]=1;
+    if(!byEx[x.exercise]) byEx[x.exercise]={group:x.group,isChinup:x.isChinup,count:0,maxW:0,dates:[]};
+    var mw=0; for(var j=0;j<x.sets.length;j++) if(x.sets[j].weight>mw) mw=x.sets[j].weight;
+    byEx[x.exercise].count++; byEx[x.exercise].dates.push(x.date.slice(5));
+    if(mw>byEx[x.exercise].maxW) byEx[x.exercise].maxW=mw;
+  }
+  var lines=['期間：'+lbl+'，共 '+Object.keys(days).length+' 天，'+tot+' 組',''];
+  var eks=Object.keys(byEx);
+  for(var i=0;i<eks.length;i++){
+    var ex=eks[i],info=byEx[ex];
+    var wl=info.isChinup?'彈力繩最細 '+info.maxW:'最大重量 '+info.maxW+'kg';
+    lines.push('- '+ex+'（'+GN[info.group]+'）'+info.count+'次，'+wl+'，日期：'+info.dates.join('/'));
+  }
   return lines.join('\n');
 }
 
-async function runAIAnalysis(){
-  const apiKey=ls('wd_apikey')||'';
-  if(!apiKey){toast('請先到設定填入 API Key',true);return}
-  if(!data.length){toast('還沒有訓練紀錄',true);return}
-  const btn=document.getElementById('ai-btn');
-  const statusEl=document.getElementById('ai-status');
-  const resultEl=document.getElementById('ai-result');
-  btn.disabled=true;btn.textContent='分析中...';
-  resultEl.style.display='none';statusEl.textContent='';statusEl.style.color='#8e8e93';
+function runAIAnalysis() {
+  var apiKey=lsGet('wd_apikey')||'';
+  if(!apiKey){ toast('請先到設定填入 API Key',true); return; }
+  if(!data.length){ toast('還沒有訓練紀錄',true); return; }
+  var btn=document.getElementById('ai-btn');
+  var stEl=document.getElementById('ai-status');
+  var reEl=document.getElementById('ai-result');
+  btn.disabled=true; btn.textContent='分析中...';
+  reEl.style.display='none'; stEl.textContent=''; stEl.style.color='#8e8e93';
+  var docs=[]; try{ docs=JSON.parse(lsGet('wd_docs')||'[]'); }catch(e){}
+  var summary=buildSummary();
 
-  let knowledgeText='';
-  let docs=[];try{docs=JSON.parse(ls('wd_docs')||'[]')}catch(e){}
-  if(docs.length){
-    statusEl.textContent=`讀取知識庫（${docs.length} 份文件）...`;
-    const fetched=[];
-    for(const doc of docs){
-      try{const txt=await fetchDocText(doc.id);fetched.push(`=== 知識庫文件 ===\n${txt.slice(0,8000)}`)}
-      catch(e){fetched.push(`（文件 ${doc.id} 讀取失敗，請確認已設為公開）`)}
-    }
-    knowledgeText=fetched.join('\n\n');
-  }
-
-  statusEl.textContent='整理訓練紀錄...';
-  const trainingSummary=buildTrainingSummary();
-  const systemPrompt=knowledgeText
-    ?`你是一位專業重訓教練助理。請嚴格根據以下知識庫內容作為知識基礎給建議，不使用知識庫以外的資訊。\n\n${knowledgeText}`
-    :`你是一位專業重訓教練助理。根據使用者的訓練紀錄，給予具體、實用的分析與建議。`;
-  const userPrompt=`以下是我的訓練紀錄：\n\n${trainingSummary}\n\n請針對以下三個面向給我具體建議：\n1. 每週訓練頻率與恢復狀況分析\n2. 漸進式超負荷（Progressive Overload）的執行情況與建議\n3. 我的弱項肌群識別與加強建議\n\n請用繁體中文回答，條列清楚，每個面向給 2-3 個具體可執行的建議。`;
-
-  statusEl.textContent='AI 分析中，請稍候...';
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+  function callAPI(knowledge) {
+    var sys=knowledge
+      ?'你是一位專業重訓教練助理。請嚴格根據以下知識庫給建議，不使用知識庫以外的資訊。\n\n'+knowledge
+      :'你是一位專業重訓教練助理。根據使用者的訓練紀錄給予具體實用的建議。';
+    var user='以下是我的訓練紀錄：\n\n'+summary
+      +'\n\n請針對以下三個面向給具體建議：\n1. 每週訓練頻率與恢復狀況\n2. 漸進式超負荷（Progressive Overload）執行情況\n3. 弱項肌群識別與加強建議\n\n請用繁體中文，條列清楚，每面向 2-3 個可執行建議。';
+    stEl.textContent='AI 分析中...';
+    fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:systemPrompt,messages:[{role:'user',content:userPrompt}]})
-    });
-    if(!res.ok){const err=await res.json();throw new Error(err.error?.message||'API 錯誤 '+res.status)}
-    const json=await res.json();
-    const text=json.content.map(b=>b.text||'').join('');
-    resultEl.textContent=text;resultEl.style.display='block';
-    statusEl.textContent=knowledgeText?`✓ 分析完成（基於 ${docs.length} 份知識庫文件）`:'✓ 分析完成';
-    statusEl.style.color='#34c759';
-  }catch(e){
-    statusEl.textContent='✗ '+e.message;statusEl.style.color='#ff3b30';toast('分析失敗',true);
-  }finally{
-    btn.disabled=false;btn.textContent='重新分析';
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:sys,messages:[{role:'user',content:user}]})
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(j){
+      if(j.error) throw new Error(j.error.message||'API錯誤');
+      var txt=''; for(var i=0;i<j.content.length;i++) txt+=j.content[i].text||'';
+      reEl.textContent=txt; reEl.style.display='block';
+      stEl.textContent=knowledge?'✓ 分析完成（基於知識庫）':'✓ 分析完成'; stEl.style.color='#34c759';
+    })
+    .catch(function(e){ stEl.textContent='✗ '+e.message; stEl.style.color='#ff3b30'; toast('分析失敗',true); })
+    .then(function(){ btn.disabled=false; btn.textContent='重新分析'; });
+  }
+
+  if(!docs.length){ callAPI(''); return; }
+  stEl.textContent='讀取知識庫...';
+  var fetched=[], done=0;
+  for(var i=0;i<docs.length;i++){
+    (function(doc){
+      fetch('https://docs.google.com/document/d/'+doc.id+'/export?format=txt')
+        .then(function(res){ return res.text(); })
+        .then(function(txt){ fetched.push(txt.slice(0,8000)); })
+        .catch(function(){ fetched.push('（文件讀取失敗）'); })
+        .then(function(){ if(++done===docs.length) callAPI(fetched.join('\n\n')); });
+    })(docs[i]);
   }
 }
 
 setTimeout(function(){
-  loadStorage();initForm();render();renderDocList();
-},0);
+  loadStorage(); initForm(); render(); renderDocList();
+}, 0);
 </script>
 </body>
 </html>
