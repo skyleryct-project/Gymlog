@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="重訓紀錄">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>重訓紀錄</title>
+<title>GYMLOG</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; background: #f2f2f7; color: #1c1c1e; font-size: 16px; }
@@ -111,6 +111,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
 /* New movement inline */
 .new-move-row { display: flex; gap: 8px; margin-top: 8px; }
 .new-move-row input { flex: 1; padding: 10px 12px; border: 1px solid #e5e5ea; border-radius: 10px; font-size: 15px; }
+.period-btn { flex: 1; padding: 8px 4px; background: #f2f2f7; border: none; border-radius: 10px; font-size: 13px; font-weight: 500; color: #8e8e93; cursor: pointer; }
+.period-btn.active { background: #007aff; color: #fff; }
 </style>
 </head>
 <body>
@@ -120,20 +122,20 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
     <div class="page-title">記錄訓練</div>
     <div class="card">
       <div class="row2">
-        <div class="field"><label>日期</label><input type="date" id="inp-date"></div>
-        <div class="field"><label>肌群</label>
+        <div class="field"><label>DATE</label><input type="date" id="inp-date"></div>
+        <div class="field"><label>CATEGORY</label>
           <select id="inp-group" onchange="onGroupChange()">
-            <option value="chest">胸/推</option>
-            <option value="back">背/拉</option>
-            <option value="legs">腿</option>
-            <option value="arms">手臂</option>
-            <option value="core">核心</option>
-            <option value="cardio">有氧</option>
+            <option value="chest">CHEST/PUSH</option>
+            <option value="back">BACK/PULL</option>
+            <option value="legs">LEGS</option>
+            <option value="arms">ARMS</option>
+            <option value="core">CORE</option>
+            <option value="cardio">CARDIO</option>
           </select>
         </div>
       </div>
       <div class="field">
-        <label>動作名稱</label>
+        <label>EXERCISES</label>
         <select id="inp-exercise-select" onchange="onExerciseChange()"></select>
       </div>
       <div class="field" id="new-move-area" style="display:none;">
@@ -147,9 +149,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
       <!-- 一般動作 -->
       <div id="weight-area">
         <div class="row3">
-          <div class="field"><label>重量 kg</label><input type="number" id="inp-weight" min="0" step="0.5" placeholder="60" inputmode="decimal"></div>
-          <div class="field"><label>次數</label><input type="number" id="inp-reps" min="1" placeholder="10" inputmode="numeric"></div>
-          <div class="field"><label>組數</label><input type="number" id="inp-sets" min="1" placeholder="1" value="1" inputmode="numeric"></div>
+          <div class="field"><label>WEIGHT kg</label><input type="number" id="inp-weight" min="0" step="0.5" placeholder="60" inputmode="decimal"></div>
+          <div class="field"><label>REPS</label><input type="number" id="inp-reps" min="1" placeholder="10" inputmode="numeric"></div>
+          <div class="field"><label>SETS</label><input type="number" id="inp-sets" min="1" placeholder="1" value="1" inputmode="numeric"></div>
         </div>
       </div>
 
@@ -165,8 +167,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
           </div>
         </div>
         <div class="row2">
-          <div class="field"><label>次數</label><input type="number" id="inp-reps-chinup" min="1" placeholder="8" inputmode="numeric"></div>
-          <div class="field"><label>組數</label><input type="number" id="inp-sets-chinup" min="1" placeholder="1" value="1" inputmode="numeric"></div>
+          <div class="field"><label>REPS</label><input type="number" id="inp-reps-chinup" min="1" placeholder="8" inputmode="numeric"></div>
+          <div class="field"><label>SETS</label><input type="number" id="inp-sets-chinup" min="1" placeholder="1" value="1" inputmode="numeric"></div>
         </div>
       </div>
 
@@ -204,9 +206,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
   <!-- 分析 -->
   <div class="section" id="tab-analysis">
     <div class="page-title">分析圖表</div>
+
+    <!-- 時間範圍切換 -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button class="period-btn active" onclick="setPeriod(8,this)">最近 8 天</button>
+      <button class="period-btn" onclick="setPeriod(28,this)">最近 28 天</button>
+      <button class="period-btn" onclick="setPeriod(0,this)">全部</button>
+    </div>
+
     <div class="metrics-grid">
-      <div class="metric-card"><div class="metric-val" id="m-total">0</div><div class="metric-lbl">總組數</div></div>
-      <div class="metric-card"><div class="metric-val" id="m-week">0</div><div class="metric-lbl">本週天數</div></div>
+      <div class="metric-card"><div class="metric-val" id="m-total">0</div><div class="metric-lbl">期間組數</div></div>
+      <div class="metric-card"><div class="metric-val" id="m-week">0</div><div class="metric-lbl">期間天數</div></div>
       <div class="metric-card"><div class="metric-val" id="m-max">0</div><div class="metric-lbl">最重 kg</div></div>
     </div>
     <div class="card">
@@ -271,16 +281,6 @@ function doGet(e) {
     </div>
 
     <div class="sheets-step">
-      <h3>步驟三：貼上 Web App URL</h3>
-      <p>把上面複製的網址貼在這裡：</p>
-      <div class="url-input-row">
-        <input type="url" id="sheets-url" placeholder="https://script.google.com/macros/s/..." value="">
-        <button class="btn-secondary" onclick="saveSheetUrl()">儲存</button>
-      </div>
-      <div class="sync-status" id="sync-status"></div>
-    </div>
-
-    <div class="sheets-step">
       <h3>上傳：手機 → Sheets</h3>
       <p style="margin-bottom:12px;">只會上傳尚未同步過的新紀錄，不會重複。</p>
       <button class="btn-primary" onclick="syncToSheets()">同步新紀錄到 Sheets</button>
@@ -324,6 +324,25 @@ const groupColors = {chest:'#1565c0',back:'#2e7d32',legs:'#e65100',arms:'#6a1b9a
 
 let data = [], customExercises = {}, selectedBand = null, histFilter = 'all';
 let trendChart = null, distChart = null;
+let analysisDays = 8; // default: last 8 days
+
+function setPeriod(days, btn) {
+  analysisDays = days;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMetrics(); renderTrend(); renderDist();
+}
+
+function periodStart() {
+  if (analysisDays === 0) return '';
+  const d = new Date(); d.setDate(d.getDate() - (analysisDays - 1));
+  return d.toISOString().slice(0,10);
+}
+
+function filteredData() {
+  const start = periodStart();
+  return start ? data.filter(x => x.date >= start) : data;
+}
 
 function ls(k,v){ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }
 function loadStorage(){
@@ -496,11 +515,11 @@ function renderHistory(){
 }
 
 function renderMetrics(){
-  document.getElementById('m-total').textContent=data.reduce((s,x)=>s+x.sets.length,0);
-  const wk=new Date(); wk.setDate(wk.getDate()-7);
-  document.getElementById('m-week').textContent=new Set(data.filter(x=>x.date>=wk.toISOString().slice(0,10)).map(x=>x.date)).size;
-  let mx=0; data.forEach(x=>{if(!x.isChinup)x.sets.forEach(s=>{if(s.weight>mx)mx=s.weight;});});
-  document.getElementById('m-max').textContent=mx;
+  const fd = filteredData();
+  document.getElementById('m-total').textContent = fd.reduce((s,x)=>s+x.sets.length, 0);
+  document.getElementById('m-week').textContent = new Set(fd.map(x=>x.date)).size;
+  let mx=0; fd.forEach(x=>{if(!x.isChinup)x.sets.forEach(s=>{if(s.weight>mx)mx=s.weight;});});
+  document.getElementById('m-max').textContent = mx;
 }
 
 function renderTrendSelect(){
@@ -513,7 +532,7 @@ function renderTrendSelect(){
 
 function renderTrend(){
   const sel=document.getElementById('trend-select').value;
-  const items=data.filter(x=>x.exercise===sel).sort((a,b)=>a.date.localeCompare(b.date));
+  const items=filteredData().filter(x=>x.exercise===sel).sort((a,b)=>a.date.localeCompare(b.date));
   const isChinup=items.length&&items[0].isChinup;
   const ctx=document.getElementById('trendChart').getContext('2d');
   if(trendChart){trendChart.destroy();trendChart=null;}
@@ -527,7 +546,7 @@ function renderTrend(){
 function renderDist(){
   const counts={};
   Object.keys(groupNames).forEach(k=>counts[k]=0);
-  data.forEach(x=>counts[x.group]=(counts[x.group]||0)+x.sets.length);
+  filteredData().forEach(x=>counts[x.group]=(counts[x.group]||0)+x.sets.length);
   const ctx=document.getElementById('distChart').getContext('2d');
   if(distChart){distChart.destroy();distChart=null;}
   distChart=new Chart(ctx,{
