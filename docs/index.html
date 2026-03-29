@@ -247,13 +247,20 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-se
   var rows = JSON.parse(e.postData.contents);
   rows.forEach(function(r){ sheet.appendRow(r); });
   return ContentService.createTextOutput(
-    JSON.stringify({status:'ok',added:rows.length})
+    JSON.stringify({status:'ok', added:rows.length})
   ).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doGet(e) {
-  return ContentService.createTextOutput('OK');
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var rows = sheet.getDataRange().getValues();
+  rows.shift(); // 移除標題列
+  return ContentService.createTextOutput(
+    JSON.stringify({status:'ok', rows:rows})
+  ).setMimeType(ContentService.MimeType.JSON);
 }</pre>
+      </div>
+      <p style="margin-top:10px;font-size:13px;color:#8e8e93;">⚠️ 如果之前已部署過，請點「部署」→「管理部署作業」→ 選現有部署 → 編輯 → 版本選「新版本」→ 部署。URL 不會改變。</p>
       </div>
       <ol start="3" style="margin-top:10px;">
         <li>點「部署」→「新增部署作業」</li>
@@ -273,11 +280,18 @@ function doGet(e) {
     </div>
 
     <div class="sheets-step">
-      <h3>同步資料</h3>
+      <h3>上傳：手機 → Sheets</h3>
       <p style="margin-bottom:12px;">只會上傳尚未同步過的新紀錄，不會重複。</p>
       <button class="btn-primary" onclick="syncToSheets()">同步新紀錄到 Sheets</button>
       <button class="btn-secondary" style="width:100%;margin-top:8px;" onclick="resetSyncState()">重置同步狀態（下次全部重新上傳）</button>
       <div class="sync-status" id="sync-result"></div>
+    </div>
+
+    <div class="sheets-step">
+      <h3>下載：Sheets → 手機</h3>
+      <p style="margin-bottom:12px;">從 Google Sheets 讀回資料，只匯入手機內還沒有的紀錄（以日期＋動作＋組次為判斷依據），不會覆蓋現有資料。</p>
+      <button class="btn-primary" style="background:#34c759;" onclick="importFromSheets()">從 Sheets 匯入新紀錄</button>
+      <div class="sync-status" id="import-result"></div>
     </div>
   </div>
 
@@ -602,6 +616,77 @@ function resetSyncState(){
   const el=document.getElementById('sync-result');
   el.textContent='✓ 已重置，下次同步將上傳所有紀錄'; el.className='sync-status sync-ok';
   toast('同步狀態已重置');
+}
+
+async function importFromSheets(){
+  const url=ls('wd_sheets_url');
+  if(!url){toast('請先設定 Google Sheets URL',true);return;}
+  const el=document.getElementById('import-result');
+  el.textContent='讀取中...'; el.className='sync-status';
+
+  try {
+    // doGet via no-cors-friendly redirect — append ?action=get
+    const res=await fetch(url+'?action=get');
+    const json=await res.json();
+    if(!json.rows||!json.rows.length){
+      el.textContent='Sheets 內沒有資料'; el.className='sync-status';
+      return;
+    }
+
+    // Build a lookup of existing sets: "date|exercise|setIndex"
+    // setIndex = how many sets of that exercise already exist on that date (0-based)
+    const existingKeys=new Set();
+    data.forEach(x=>{
+      x.sets.forEach((s,i)=>existingKeys.add(`${x.date}|${x.exercise}|${i}`));
+    });
+
+    // Parse Sheets rows: [日期, 肌群, 動作, 組次(第N組), 重量, 次數]
+    // Group by date+exercise, track set index per group
+    const sheetsCounter={};
+    let imported=0;
+
+    json.rows.forEach(r=>{
+      const date=String(r[0]).trim();
+      const exercise=String(r[2]).trim();
+      const rawWeight=String(r[4]).trim();
+      const reps=parseInt(r[5]);
+      if(!date||!exercise||isNaN(reps)) return;
+
+      const isChinup=exercise==='Chin-up';
+      const weight=isChinup?parseInt(rawWeight.replace(/[^0-9]/g,'')):parseFloat(rawWeight);
+      if(isNaN(weight)) return;
+
+      const gKey=`${date}|${exercise}`;
+      if(!sheetsCounter[gKey]) sheetsCounter[gKey]=0;
+      const setIdx=sheetsCounter[gKey]++;
+      const key=`${date}|${exercise}|${setIdx}`;
+      if(existingKeys.has(key)) return; // already on phone
+
+      // Find or create entry in local data
+      let entry=data.find(x=>x.date===date&&x.exercise===exercise);
+      if(!entry){
+        // Determine group from groupNames reverse lookup
+        const groupKey=Object.keys(groupNames).find(k=>groupNames[k]===String(r[1]).trim())||'chest';
+        entry={id:Date.now()+Math.random(),date,group:groupKey,exercise,isChinup,sets:[]};
+        data.push(entry);
+      }
+      entry.sets.push({weight,reps});
+      existingKeys.add(key);
+      imported++;
+    });
+
+    save(); render();
+    if(imported>0){
+      el.textContent=`✓ 已匯入 ${imported} 筆新紀錄`; el.className='sync-status sync-ok';
+      toast(`匯入 ${imported} 筆新紀錄`);
+    } else {
+      el.textContent='✓ 沒有新紀錄，手機已是最新'; el.className='sync-status sync-ok';
+      toast('手機資料已是最新');
+    }
+  } catch(e){
+    el.textContent='✗ 讀取失敗，請確認 URL 及 Apps Script 已更新'; el.className='sync-status sync-err';
+    toast('讀取失敗',true);
+  }
 }
 
 function render(){ renderToday(); renderHistory(); renderMetrics(); renderTrendSelect(); renderTrend(); renderDist(); }
