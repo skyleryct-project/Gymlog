@@ -314,37 +314,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
         <pre style="font-size:12px;line-height:1.5;font-family:monospace;white-space:pre-wrap">function doPost(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var payload = JSON.parse(e.postData.contents);
-  if (payload.action === 'activity') {
-    doPostActivity(payload.rows);
-    return ContentService.createTextOutput(
-      JSON.stringify({status:'ok', added:payload.rows.length})
-    ).setMimeType(ContentService.MimeType.JSON);
+  var action = payload.action || 'workout';
+  var rows = payload.rows;
+
+  if (action === 'workout') {
+    var sheet = ss.getSheetByName('重訓紀錄') || ss.getSheets()[0];
+    rows.forEach(function(r) { sheet.appendRow(r); });
+  } else if (action === 'activity') {
+    var sheet = ss.getSheetByName('其他運動');
+    if (!sheet) {
+      sheet = ss.insertSheet('其他運動');
+      sheet.appendRow(['日期','類型','細項','時間(分)','強度/備註']);
+    }
+    rows.forEach(function(r) { sheet.appendRow(r); });
   }
-  var sheet = ss.getActiveSheet();
-  var rows = Array.isArray(payload) ? payload : payload.rows;
-  rows.forEach(function(r){ sheet.appendRow(r); });
-  return ContentService.createTextOutput(
-    JSON.stringify({status:'ok', added:rows.length})
-  ).setMimeType(ContentService.MimeType.JSON);
+
+  return ContentService
+    .createTextOutput(JSON.stringify({status:'ok', added:rows.length}))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doGet(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getActiveSheet();
+  var sheet = ss.getSheetByName('重訓紀錄') || ss.getSheets()[0];
   var rows = sheet.getDataRange().getValues();
   rows.shift();
-  return ContentService.createTextOutput(
-    JSON.stringify({status:'ok', rows:rows})
-  ).setMimeType(ContentService.MimeType.JSON);
-}
-
-function doPostActivity(rows) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName('其他運動') || ss.insertSheet('其他運動');
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(['日期','類型','細項','時間(分)','強度/備註']);
-  }
-  rows.forEach(function(r){ sheet.appendRow(r); });
+  return ContentService
+    .createTextOutput(JSON.stringify({status:'ok', rows:rows}))
+    .setMimeType(ContentService.MimeType.JSON);
 }</pre>
       </div>
       <p style="margin-top:10px;font-size:13px;color:#8e8e93">已部署過請點「部署」→「管理部署作業」→ 編輯 → 版本選「新版本」→ 部署，URL 不變。</p>
@@ -907,7 +904,7 @@ function syncToday() {
   var r=buildRows(te);
   if (!r.rows.length) { el.textContent='✓ 今日紀錄已全部上傳'; el.style.color='#34c759'; setTimeout(function(){ el.textContent=''; },2500); return; }
   el.textContent='上傳中（'+r.rows.length+' 筆）...'; el.style.color='#8e8e93';
-  fetch(url,{method:'POST',body:JSON.stringify(r.rows)})
+  fetch(url,{method:'POST',body:JSON.stringify({action:'workout', rows:r.rows})})
     .then(function(res){ return res.json(); })
     .then(function(json){
       for(var i=0;i<r.keys.length;i++) r.synced.add(r.keys[i]);
@@ -930,7 +927,7 @@ function syncToSheets() {
   var r=buildRows(data);
   if (!r.rows.length) { el.textContent='✓ 全部已同步'; el.className='sync-status sync-ok'; toast('已是最新'); return; }
   el.textContent='同步中（'+r.rows.length+' 筆）...'; el.className='sync-status';
-  fetch(url,{method:'POST',body:JSON.stringify(r.rows)})
+  fetch(url,{method:'POST',body:JSON.stringify({action:'workout', rows:r.rows})})
     .then(function(res){ return res.json(); })
     .then(function(json){
       for(var i=0;i<r.keys.length;i++) r.synced.add(r.keys[i]);
