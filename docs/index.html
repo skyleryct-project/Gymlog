@@ -205,6 +205,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
     </div>
     <div class="card">
       <div class="card-title">AI 訓練分析</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="period-btn active" id="ai-period-8" onclick="setAIPeriod(8,this)">分析最近 8 天</button>
+        <button class="period-btn" id="ai-period-28" onclick="setAIPeriod(28,this)">分析最近 28 天</button>
+      </div>
       <div id="ai-sections" style="display:none;margin-bottom:12px">
         <div style="border-left:3px solid #5856d6;padding-left:12px;margin-bottom:16px">
           <div style="font-size:12px;font-weight:600;color:#5856d6;margin-bottom:6px">課表檢視與建議</div>
@@ -851,12 +855,20 @@ function renderDocList() {
   el.innerHTML=h;
 }
 
+var aiPeriod = 8;
+
+function setAIPeriod(days, btn) {
+  aiPeriod = days;
+  var bs = document.querySelectorAll('#ai-period-8, #ai-period-28');
+  for (var i=0;i<bs.length;i++) bs[i].classList.remove('active');
+  btn.classList.add('active');
+}
+
 function buildSummary() {
-  // Always use last 8 days for AI analysis regardless of period selector
-  var s8 = new Date(); s8.setDate(s8.getDate()-7);
+  var s8 = new Date(); s8.setDate(s8.getDate()-(aiPeriod-1));
   var s8str = s8.getFullYear()+'-'+pad(s8.getMonth()+1)+'-'+pad(s8.getDate());
   var fd = data.filter(function(x){ return x.date>=s8str; });
-  if(!fd.length) return '最近8天內沒有訓練紀錄。';
+  if(!fd.length) return '最近'+aiPeriod+'天內沒有訓練紀錄。';
   var tot=0, days={}, byEx={};
   for(var i=0;i<fd.length;i++){
     var x=fd[i]; tot+=x.sets.length; days[x.date]=1;
@@ -864,7 +876,7 @@ function buildSummary() {
     var mw=0; for(var j=0;j<x.sets.length;j++) if(x.sets[j].weight>mw) mw=x.sets[j].weight;
     byEx[x.exercise].sessions.push({date:x.date, sets:x.sets.length, maxW:mw, allSets:x.sets});
   }
-  var lines=['最近8天訓練摘要：共 '+Object.keys(days).length+' 天，'+tot+' 組',''];
+  var lines=['最近'+aiPeriod+'天訓練摘要：共 '+Object.keys(days).length+' 天，'+tot+' 組',''];
   var eks=Object.keys(byEx);
   for(var i=0;i<eks.length;i++){
     var ex=eks[i], info=byEx[eks[i]];
@@ -923,7 +935,7 @@ function runAIAnalysis() {
   function callAPI(knowledge) {
     var userPrompt='以下是我最近8天的訓練紀錄：\n\n'+summary
       +'\n\n請依序針對以下三個面向給我具體建議，每個面向用標題明確標示：\n\n'
-      +'1. 課表檢視與建議：針對上述訓練紀錄，評估哪些動作在下一週可以調整重量、組數或次數，給出具體數字建議。'+(extra?'（本週我也有做：'+extra+'，請一併考慮訓練總量）':'')+'\n\n'
+      +'1. 課表檢視與建議：針對上述最近'+aiPeriod+'天的訓練紀錄，評估哪些動作在下一週可以調整重量、組數或次數，給出具體數字建議。'+(extra?'（本週我也有做：'+extra+'，請一併考慮訓練總量）':'')+'\n\n'
       +'2. 休息與飲食：根據本週訓練狀況，提供休息天安排建議，以及三大營養素（蛋白質、碳水、脂肪）的攝取方向。\n\n'
       +'3. 後續重點：後續課表安排應著重哪個面向（例如：特定肌群強化、動作技術、訓練頻率調整等）。\n\n'
       +'請用繁體中文，每個面向條列具體可執行的建議。';
