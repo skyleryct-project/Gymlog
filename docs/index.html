@@ -199,8 +199,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <div class="chart-wrap" style="height:200px"><canvas id="distChart"></canvas></div>
     </div>
     <div class="card">
+      <div class="card-title">其他運動補充</div>
+      <p style="font-size:13px;color:#8e8e93;margin-bottom:8px">本週還有做哪些其他運動？（例：CrossFit 2次、跑步 5km）</p>
+      <textarea id="extra-activity" rows="2" style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:15px;resize:none;font-family:inherit" placeholder="可留空"></textarea>
+    </div>
+    <div class="card">
       <div class="card-title">AI 訓練分析</div>
-      <div id="ai-result" style="font-size:14px;line-height:1.8;color:#1c1c1e;white-space:pre-wrap;display:none;margin-bottom:12px"></div>
+      <div id="ai-sections" style="display:none;margin-bottom:12px">
+        <div style="border-left:3px solid #5856d6;padding-left:12px;margin-bottom:16px">
+          <div style="font-size:12px;font-weight:600;color:#5856d6;margin-bottom:6px">課表檢視與建議</div>
+          <div id="ai-r1" style="font-size:14px;line-height:1.8;color:#1c1c1e;white-space:pre-wrap"></div>
+        </div>
+        <div style="border-left:3px solid #34c759;padding-left:12px;margin-bottom:16px">
+          <div style="font-size:12px;font-weight:600;color:#34c759;margin-bottom:6px">休息與飲食</div>
+          <div id="ai-r2" style="font-size:14px;line-height:1.8;color:#1c1c1e;white-space:pre-wrap"></div>
+        </div>
+        <div style="border-left:3px solid #ff9500;padding-left:12px">
+          <div style="font-size:12px;font-weight:600;color:#ff9500;margin-bottom:6px">後續重點</div>
+          <div id="ai-r3" style="font-size:14px;line-height:1.8;color:#1c1c1e;white-space:pre-wrap"></div>
+        </div>
+      </div>
       <button class="btn-primary" id="ai-btn" onclick="runAIAnalysis()" style="background:#5856d6">開始 AI 分析</button>
       <div id="ai-status" style="font-size:13px;color:#8e8e93;margin-top:8px;min-height:18px"></div>
     </div>
@@ -834,25 +852,59 @@ function renderDocList() {
 }
 
 function buildSummary() {
-  var fd=fData();
-  if(!fd.length) return '目前期間內沒有訓練紀錄。';
-  var lbl=period===0?'全部時間':'最近 '+period+' 天';
-  var tot=0,days={},byEx={};
+  // Always use last 8 days for AI analysis regardless of period selector
+  var s8 = new Date(); s8.setDate(s8.getDate()-7);
+  var s8str = s8.getFullYear()+'-'+pad(s8.getMonth()+1)+'-'+pad(s8.getDate());
+  var fd = data.filter(function(x){ return x.date>=s8str; });
+  if(!fd.length) return '最近8天內沒有訓練紀錄。';
+  var tot=0, days={}, byEx={};
   for(var i=0;i<fd.length;i++){
     var x=fd[i]; tot+=x.sets.length; days[x.date]=1;
-    if(!byEx[x.exercise]) byEx[x.exercise]={group:x.group,isChinup:x.isChinup,count:0,maxW:0,dates:[]};
+    if(!byEx[x.exercise]) byEx[x.exercise]={group:x.group,isChinup:x.isChinup,sessions:[]};
     var mw=0; for(var j=0;j<x.sets.length;j++) if(x.sets[j].weight>mw) mw=x.sets[j].weight;
-    byEx[x.exercise].count++; byEx[x.exercise].dates.push(x.date.slice(5));
-    if(mw>byEx[x.exercise].maxW) byEx[x.exercise].maxW=mw;
+    byEx[x.exercise].sessions.push({date:x.date, sets:x.sets.length, maxW:mw, allSets:x.sets});
   }
-  var lines=['期間：'+lbl+'，共 '+Object.keys(days).length+' 天，'+tot+' 組',''];
+  var lines=['最近8天訓練摘要：共 '+Object.keys(days).length+' 天，'+tot+' 組',''];
   var eks=Object.keys(byEx);
   for(var i=0;i<eks.length;i++){
-    var ex=eks[i],info=byEx[ex];
-    var wl=info.isChinup?'彈力繩最細 '+info.maxW:'最大重量 '+info.maxW+'kg';
-    lines.push('- '+ex+'（'+GN[info.group]+'）'+info.count+'次，'+wl+'，日期：'+info.dates.join('/'));
+    var ex=eks[i], info=byEx[eks[i]];
+    lines.push('【'+ex+'】（'+GN[info.group]+'）');
+    for(var j=0;j<info.sessions.length;j++){
+      var sess=info.sessions[j];
+      var detail='';
+      for(var k=0;k<sess.allSets.length;k++){
+        var s=sess.allSets[k];
+        detail+=(info.isChinup?'彈力繩'+s.weight:s.weight+'kg')+'x'+s.reps+'次 ';
+      }
+      lines.push('  '+sess.date+': '+detail.trim());
+    }
   }
+  var extra = document.getElementById('extra-activity').value.trim();
+  if(extra) lines.push('\n其他運動：'+extra);
   return lines.join('\n');
+}
+
+function parseAISections(text) {
+  // Try to split by numbered sections or keywords
+  var r1='', r2='', r3='';
+  var markers1=['課表','1.','一、','1、'];
+  var markers2=['休息','飲食','2.','二、','2、'];
+  var markers3=['後續','重點','3.','三、','3、'];
+  var lines=text.split('\n');
+  var cur=0;
+  for(var i=0;i<lines.length;i++){
+    var l=lines[i];
+    var switched=false;
+    for(var k=0;k<markers2.length;k++) if(l.indexOf(markers2[k])>=0&&cur<2){ cur=2; switched=true; break; }
+    if(!switched) for(var k=0;k<markers3.length;k++) if(l.indexOf(markers3[k])>=0&&cur<3){ cur=3; switched=true; break; }
+    if(!switched&&cur===0) for(var k=0;k<markers1.length;k++) if(l.indexOf(markers1[k])>=0){ cur=1; switched=true; break; }
+    if(cur===1||cur===0) r1+=l+'\n';
+    else if(cur===2) r2+=l+'\n';
+    else r3+=l+'\n';
+  }
+  // If parsing failed, just put everything in r1
+  if(!r2&&!r3){ return {r1:text, r2:'', r3:''}; }
+  return {r1:r1.trim(), r2:r2.trim(), r3:r3.trim()};
 }
 
 function runAIAnalysis() {
@@ -861,36 +913,59 @@ function runAIAnalysis() {
   if(!data.length){ toast('還沒有訓練紀錄',true); return; }
   var btn=document.getElementById('ai-btn');
   var stEl=document.getElementById('ai-status');
-  var reEl=document.getElementById('ai-result');
+  var secEl=document.getElementById('ai-sections');
   btn.disabled=true; btn.textContent='分析中...';
-  reEl.style.display='none'; stEl.textContent=''; stEl.style.color='#8e8e93';
+  secEl.style.display='none'; stEl.textContent=''; stEl.style.color='#8e8e93';
   var docs=[]; try{ docs=JSON.parse(lsGet('wd_docs')||'[]'); }catch(e){}
   var summary=buildSummary();
+  var extra=document.getElementById('extra-activity').value.trim();
 
   function callAPI(knowledge) {
-    var user='以下是我的訓練紀錄：\n\n'+summary
-      +'\n\n請針對以下三個面向給具體建議：\n1. 每週訓練頻率與恢復狀況\n2. 漸進式超負荷（Progressive Overload）執行情況\n3. 弱項肌群識別與加強建議\n\n請用繁體中文，條列清楚，每面向 2-3 個可執行建議。';
+    var userPrompt='以下是我最近8天的訓練紀錄：\n\n'+summary
+      +'\n\n請依序針對以下三個面向給我具體建議，每個面向用標題明確標示：\n\n'
+      +'1. 課表檢視與建議：針對上述訓練紀錄，評估哪些動作在下一週可以調整重量、組數或次數，給出具體數字建議。'+(extra?'（本週我也有做：'+extra+'，請一併考慮訓練總量）':'')+'\n\n'
+      +'2. 休息與飲食：根據本週訓練狀況，提供休息天安排建議，以及三大營養素（蛋白質、碳水、脂肪）的攝取方向。\n\n'
+      +'3. 後續重點：後續課表安排應著重哪個面向（例如：特定肌群強化、動作技術、訓練頻率調整等）。\n\n'
+      +'請用繁體中文，每個面向條列具體可執行的建議。';
+
     var sysBlocks;
-    if (knowledge) {
-      sysBlocks = [
+    if(knowledge) {
+      sysBlocks=[
         {type:'text', text:'你是一位專業重訓教練助理。請嚴格根據以下知識庫給建議，不使用知識庫以外的資訊。'},
         {type:'text', text:knowledge, cache_control:{type:'ephemeral'}}
       ];
     } else {
-      sysBlocks = [{type:'text', text:'你是一位專業重訓教練助理。根據使用者的訓練紀錄給予具體實用的建議。'}];
+      sysBlocks=[{type:'text', text:'你是一位專業重訓教練助理。根據使用者的訓練紀錄給予具體實用的建議。'}];
     }
+
     stEl.textContent='AI 分析中...';
     fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-beta':'prompt-caching-2024-07-31','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:sysBlocks,messages:[{role:'user',content:user}]})
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-beta':'prompt-caching-2024-07-31',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:2000,
+        system:sysBlocks,
+        messages:[{role:'user',content:userPrompt}]
+      })
     })
     .then(function(res){ return res.json(); })
     .then(function(j){
       if(j.error) throw new Error(j.error.message||'API錯誤');
       var txt=''; for(var i=0;i<j.content.length;i++) txt+=j.content[i].text||'';
-      reEl.textContent=txt; reEl.style.display='block';
-      stEl.textContent=knowledge?'✓ 分析完成（基於知識庫）':'✓ 分析完成'; stEl.style.color='#34c759';
+      var parts=parseAISections(txt);
+      document.getElementById('ai-r1').textContent=parts.r1;
+      document.getElementById('ai-r2').textContent=parts.r2;
+      document.getElementById('ai-r3').textContent=parts.r3;
+      secEl.style.display='block';
+      stEl.textContent=knowledge?'✓ 分析完成（基於知識庫）':'✓ 分析完成';
+      stEl.style.color='#34c759';
     })
     .catch(function(e){ stEl.textContent='✗ '+e.message; stEl.style.color='#ff3b30'; toast('分析失敗',true); })
     .then(function(){ btn.disabled=false; btn.textContent='重新分析'; });
@@ -905,7 +980,7 @@ function runAIAnalysis() {
         .then(function(res){ return res.text(); })
         .then(function(txt){ fetched.push(txt.slice(0,8000)); })
         .catch(function(){ fetched.push('（文件讀取失敗）'); })
-        .then(function(){ if(++done===docs.length) callAPI(fetched.join('\n\n')); });
+        .then(function(){ if(++done===docs.length) callAPI(fetched.join('\n\n--- 下一份文件 ---\n\n')); });
     })(docs[i]);
   }
 }
