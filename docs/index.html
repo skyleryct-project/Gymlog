@@ -868,16 +868,22 @@ function runAIAnalysis() {
   var summary=buildSummary();
 
   function callAPI(knowledge) {
-    var sys=knowledge
-      ?'你是一位專業重訓教練助理。請嚴格根據以下知識庫給建議，不使用知識庫以外的資訊。\n\n'+knowledge
-      :'你是一位專業重訓教練助理。根據使用者的訓練紀錄給予具體實用的建議。';
     var user='以下是我的訓練紀錄：\n\n'+summary
       +'\n\n請針對以下三個面向給具體建議：\n1. 每週訓練頻率與恢復狀況\n2. 漸進式超負荷（Progressive Overload）執行情況\n3. 弱項肌群識別與加強建議\n\n請用繁體中文，條列清楚，每面向 2-3 個可執行建議。';
+    var sysBlocks;
+    if (knowledge) {
+      sysBlocks = [
+        {type:'text', text:'你是一位專業重訓教練助理。請嚴格根據以下知識庫給建議，不使用知識庫以外的資訊。'},
+        {type:'text', text:knowledge, cache_control:{type:'ephemeral'}}
+      ];
+    } else {
+      sysBlocks = [{type:'text', text:'你是一位專業重訓教練助理。根據使用者的訓練紀錄給予具體實用的建議。'}];
+    }
     stEl.textContent='AI 分析中...';
     fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:sys,messages:[{role:'user',content:user}]})
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-beta':'prompt-caching-2024-07-31','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:sysBlocks,messages:[{role:'user',content:user}]})
     })
     .then(function(res){ return res.json(); })
     .then(function(j){
