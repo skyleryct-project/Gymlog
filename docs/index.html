@@ -83,6 +83,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.75);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;opacity:0;transition:opacity 0.2s;pointer-events:none;z-index:200;white-space:nowrap}
 #toast.show{opacity:1}
 .empty{text-align:center;padding:24px;color:#8e8e93;font-size:14px}
+.act-type-btn{flex:1;padding:8px 4px;background:#f2f2f7;border:1.5px solid transparent;border-radius:10px;font-size:13px;font-weight:500;color:#1c1c1e;cursor:pointer;text-align:center}
+.act-type-btn.selected{background:#e8f0fe;border-color:#007aff;color:#007aff}
+.src-note{font-size:11px;color:#8e8e93;margin-top:10px;padding-top:8px;border-top:0.5px solid #e5e5ea;line-height:1.5}
 </style>
 </head>
 <body>
@@ -156,6 +159,63 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <div id="today-list"><div class="empty">今天還沒有紀錄</div></div>
       <div id="today-sync-status" style="font-size:13px;margin-top:6px;min-height:16px"></div>
     </div>
+
+    <div class="card">
+      <div class="card-title">其他運動記錄</div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button class="act-type-btn selected" id="atype-crossfit" onclick="selectActType('crossfit',this)">CrossFit</button>
+        <button class="act-type-btn" id="atype-run" onclick="selectActType('run',this)">跑步</button>
+        <button class="act-type-btn" id="atype-other" onclick="selectActType('other',this)">其他有氧</button>
+      </div>
+      <div id="act-crossfit-area">
+        <div class="field">
+          <label>WOD 類型</label>
+          <select id="act-wod-type">
+            <option value="AMRAP">AMRAP</option>
+            <option value="For Time">For Time</option>
+            <option value="EMOM">EMOM</option>
+            <option value="Chipper">Chipper</option>
+            <option value="Strength">Strength</option>
+            <option value="Open Gym">Open Gym</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>WOD 細項（動作、重量、次數等）</label>
+          <textarea id="act-wod-detail" rows="3" style="width:100%;padding:10px 12px;border:1px solid #e5e5ea;border-radius:10px;font-size:15px;resize:none;font-family:inherit" placeholder="例：21-15-9 Thruster 43kg + Pull-up"></textarea>
+        </div>
+        <div class="row2">
+          <div class="field"><label>時間（分鐘）</label><input type="number" id="act-wod-min" min="1" placeholder="45" inputmode="numeric"></div>
+          <div class="field"><label>強度</label>
+            <select id="act-wod-intensity">
+              <option value="輕鬆">輕鬆</option>
+              <option value="中等" selected>中等</option>
+              <option value="高強度">高強度</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="act-run-area" style="display:none">
+        <div class="row2">
+          <div class="field"><label>距離（公里）</label><input type="number" id="act-run-km" min="0" step="0.1" placeholder="5.0" inputmode="decimal"></div>
+          <div class="field"><label>時間（分鐘）</label><input type="number" id="act-run-min" min="1" placeholder="30" inputmode="numeric"></div>
+        </div>
+        <div class="field"><label>備註</label><input type="text" id="act-run-note" placeholder="例：輕鬆慢跑、間歇跑"></div>
+      </div>
+      <div id="act-other-area" style="display:none">
+        <div class="row2">
+          <div class="field"><label>種類</label><input type="text" id="act-other-type" placeholder="例：游泳、騎車"></div>
+          <div class="field"><label>時間（分鐘）</label><input type="number" id="act-other-min" min="1" placeholder="60" inputmode="numeric"></div>
+        </div>
+        <div class="field"><label>備註</label><input type="text" id="act-other-note" placeholder="例：距離、強度"></div>
+      </div>
+      <button class="btn-primary" onclick="addActivity()" style="background:#34c759;margin-top:4px">記錄其他運動</button>
+      <div id="act-msg" style="font-size:13px;margin-top:8px;min-height:18px"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">今日其他運動</div>
+      <div id="today-act-list"><div class="empty">今天還沒有其他運動紀錄</div></div>
+    </div>
   </div>
 
   <!-- 歷史 -->
@@ -215,15 +275,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       <div id="ai-sections" style="display:none;margin-bottom:12px">
         <div style="border-left:3px solid #5856d6;padding-left:12px;margin-bottom:16px">
           <div style="font-size:12px;font-weight:600;color:#5856d6;margin-bottom:6px">課表檢視與建議</div>
-          <div id="ai-r1" style="font-size:14px;line-height:1.8;color:#1c1c1e;white-space:pre-wrap"></div>
+          <div id="ai-r1" style="font-size:14px;line-height:1.8;color:#1c1c1e"></div>
+          <div id="ai-src1" class="src-note"></div>
         </div>
         <div style="border-left:3px solid #34c759;padding-left:12px;margin-bottom:16px">
           <div style="font-size:12px;font-weight:600;color:#34c759;margin-bottom:6px">休息與飲食</div>
-          <div id="ai-r2" style="font-size:14px;line-height:1.8;color:#1c1c1e;white-space:pre-wrap"></div>
+          <div id="ai-r2" style="font-size:14px;line-height:1.8;color:#1c1c1e"></div>
+          <div id="ai-src2" class="src-note"></div>
         </div>
         <div style="border-left:3px solid #ff9500;padding-left:12px">
           <div style="font-size:12px;font-weight:600;color:#ff9500;margin-bottom:6px">後續重點</div>
-          <div id="ai-r3" style="font-size:14px;line-height:1.8;color:#1c1c1e;white-space:pre-wrap"></div>
+          <div id="ai-r3" style="font-size:14px;line-height:1.8;color:#1c1c1e"></div>
+          <div id="ai-src3" class="src-note"></div>
         </div>
       </div>
       <button class="btn-primary" id="ai-btn" onclick="runAIAnalysis()" style="background:#5856d6">開始 AI 分析</button>
@@ -249,8 +312,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
       </ol>
       <div style="background:#f2f2f7;border-radius:8px;padding:12px;margin-top:10px;overflow-x:auto">
         <pre style="font-size:12px;line-height:1.5;font-family:monospace;white-space:pre-wrap">function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var rows = JSON.parse(e.postData.contents);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var payload = JSON.parse(e.postData.contents);
+  if (payload.action === 'activity') {
+    doPostActivity(payload.rows);
+    return ContentService.createTextOutput(
+      JSON.stringify({status:'ok', added:payload.rows.length})
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+  var sheet = ss.getActiveSheet();
+  var rows = Array.isArray(payload) ? payload : payload.rows;
   rows.forEach(function(r){ sheet.appendRow(r); });
   return ContentService.createTextOutput(
     JSON.stringify({status:'ok', added:rows.length})
@@ -258,12 +329,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 }
 
 function doGet(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getActiveSheet();
   var rows = sheet.getDataRange().getValues();
   rows.shift();
   return ContentService.createTextOutput(
     JSON.stringify({status:'ok', rows:rows})
   ).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPostActivity(rows) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('其他運動') || ss.insertSheet('其他運動');
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(['日期','類型','細項','時間(分)','強度/備註']);
+  }
+  rows.forEach(function(r){ sheet.appendRow(r); });
 }</pre>
       </div>
       <p style="margin-top:10px;font-size:13px;color:#8e8e93">已部署過請點「部署」→「管理部署作業」→ 編輯 → 版本選「新版本」→ 部署，URL 不變。</p>
@@ -287,6 +368,11 @@ function doGet(e) {
       <h3>下載：Sheets → 手機</h3>
       <p style="margin-bottom:12px">只匯入手機內還沒有的紀錄，不覆蓋現有資料。</p>
       <button class="btn-primary" style="background:#34c759" onclick="importFromSheets()">從 Sheets 匯入新紀錄</button>
+    </div>
+    <div class="sheets-step">
+      <h3>其他運動同步</h3>
+      <p style="margin-bottom:12px">將其他運動紀錄同步到 Sheets「其他運動」分頁（自動建立）。</p>
+      <button class="btn-primary" style="background:#ff9500" onclick="syncActivities()">同步其他運動紀錄</button>
       <div class="sync-status" id="import-result"></div>
     </div>
   </div>
@@ -357,14 +443,20 @@ var TC = null, DC = null;
 function lsGet(k){ return localStorage.getItem(k); }
 function lsSet(k,v){ localStorage.setItem(k,v); }
 
+var actType = 'crossfit';
+var actData = [];
+
 function loadStorage() {
   try { data = JSON.parse(lsGet('wd_data') || '[]'); } catch(e) { data = []; }
   try { custom = JSON.parse(lsGet('wd_custom') || '{}'); } catch(e) { custom = {}; }
+  try { actData = JSON.parse(lsGet('wd_actdata') || '[]'); } catch(e) { actData = []; }
   var u = lsGet('wd_sheets_url'); if (u) document.getElementById('sheets-url').value = u;
   var k = lsGet('wd_apikey'); if (k) document.getElementById('cfg-apikey').value = k;
 }
 
 function save() { lsSet('wd_data', JSON.stringify(data)); }
+function saveAct() { lsSet('wd_actdata', JSON.stringify(actData)); }
+function saveAct() { lsSet('wd_actdata', JSON.stringify(actData)); }
 function saveCustom() { lsSet('wd_custom', JSON.stringify(custom)); }
 
 function todayStr() {
@@ -392,6 +484,92 @@ function showTab(id, btn) {
   btn.classList.add('active');
   if (id === 'analysis') { renderMetrics(); renderTrendSel(); renderTrend(); renderDist(); }
   if (id === 'settings') { renderDocList(); }
+}
+
+function selectActType(type, btn) {
+  actType = type;
+  var bs = document.querySelectorAll('.act-type-btn');
+  for (var i=0;i<bs.length;i++) bs[i].classList.remove('selected');
+  btn.classList.add('selected');
+  document.getElementById('act-crossfit-area').style.display = type==='crossfit'?'block':'none';
+  document.getElementById('act-run-area').style.display = type==='run'?'block':'none';
+  document.getElementById('act-other-area').style.display = type==='other'?'block':'none';
+}
+
+function actToast(msg, err) {
+  var el = document.getElementById('act-msg');
+  el.textContent = msg;
+  el.style.color = err ? '#ff3b30' : '#34c759';
+  setTimeout(function(){ el.textContent=''; }, 2500);
+}
+
+function addActivity() {
+  var d = document.getElementById('inp-date').value;
+  if (!d) { actToast('請先選擇日期', true); return; }
+  var entry = {id: Date.now(), date: d, type: actType};
+  if (actType === 'crossfit') {
+    var detail = document.getElementById('act-wod-detail').value.trim();
+    if (!detail) { actToast('請填入 WOD 細項', true); return; }
+    entry.wodType = document.getElementById('act-wod-type').value;
+    entry.detail = detail;
+    entry.minutes = parseInt(document.getElementById('act-wod-min').value) || 0;
+    entry.intensity = document.getElementById('act-wod-intensity').value;
+    document.getElementById('act-wod-detail').value = '';
+    document.getElementById('act-wod-min').value = '';
+  } else if (actType === 'run') {
+    var km = parseFloat(document.getElementById('act-run-km').value);
+    if (!km || km <= 0) { actToast('請填入距離', true); return; }
+    entry.km = km;
+    entry.minutes = parseInt(document.getElementById('act-run-min').value) || 0;
+    entry.note = document.getElementById('act-run-note').value.trim();
+    document.getElementById('act-run-km').value = '';
+    document.getElementById('act-run-min').value = '';
+    document.getElementById('act-run-note').value = '';
+  } else {
+    var otype = document.getElementById('act-other-type').value.trim();
+    if (!otype) { actToast('請填入運動種類', true); return; }
+    entry.otherType = otype;
+    entry.minutes = parseInt(document.getElementById('act-other-min').value) || 0;
+    entry.note = document.getElementById('act-other-note').value.trim();
+    document.getElementById('act-other-type').value = '';
+    document.getElementById('act-other-min').value = '';
+    document.getElementById('act-other-note').value = '';
+  }
+  actData.push(entry);
+  saveAct();
+  renderTodayAct();
+  actToast('已記錄！');
+}
+
+function deleteAct(id) {
+  actData = actData.filter(function(x){ return x.id !== id; });
+  saveAct(); renderTodayAct();
+}
+
+function actLabel(a) {
+  if (a.type === 'crossfit') return 'CrossFit '+a.wodType+(a.minutes?' '+a.minutes+'分':'')+' ('+a.intensity+')';
+  if (a.type === 'run') return '跑步 '+a.km+'km'+(a.minutes?' '+a.minutes+'分':'')+(a.note?' · '+a.note:'');
+  return (a.otherType||'其他有氧')+(a.minutes?' '+a.minutes+'分':'')+(a.note?' · '+a.note:'');
+}
+
+function renderTodayAct() {
+  var t = todayStr();
+  var items = actData.filter(function(x){ return x.date === t; });
+  var el = document.getElementById('today-act-list');
+  if (!items.length) { el.innerHTML = '<div class="empty">今天還沒有其他運動紀錄</div>'; return; }
+  var h = '';
+  for (var i=0;i<items.length;i++) {
+    var a = items[i];
+    h += '<div class="log-item"><div class="log-top">'
+      + '<span class="log-name">'+actLabel(a)+'</span>'
+      + '<button class="chip-del" style="font-size:13px;color:#ff3b30;background:none;border:none;cursor:pointer" onclick="deleteAct('+a.id+')">刪除</button>'
+      + '</div>';
+    if (a.type === 'crossfit' && a.detail) {
+      h += '<div style="font-size:13px;color:#3a3a3c;margin-top:4px">'+a.detail+'</div>';
+    }
+    h += '</div>';
+  }
+  el.innerHTML = h;
 }
 
 function initForm() {
@@ -645,7 +823,7 @@ function renderDist() {
   });
 }
 
-function render() { renderToday(); renderHistory(); renderMetrics(); renderTrendSel(); renderTrend(); renderDist(); }
+function render() { renderToday(); renderHistory(); renderMetrics(); renderTrendSel(); renderTrend(); renderDist(); renderTodayAct(); }
 
 function exportCSV() {
   if (!data.length) { toast('沒有資料', true); return; }
@@ -760,6 +938,34 @@ function syncToSheets() {
       el.textContent='✓ 成功同步 '+json.added+' 筆！'; el.className='sync-status sync-ok'; toast('同步成功！');
     })
     .catch(function(){ el.textContent='✗ 同步失敗'; el.className='sync-status sync-err'; toast('同步失敗',true); });
+}
+
+function syncActivities() {
+  var url = lsGet('wd_sheets_url');
+  if (!url) { toast('請先設定 Sheets URL', true); return; }
+  if (!actData.length) { toast('沒有其他運動資料', true); return; }
+  var synced; try { synced = new Set(JSON.parse(lsGet('wd_act_synced')||'[]')); } catch(e){ synced=new Set(); }
+  var rows = [], keys = [];
+  for (var i=0;i<actData.length;i++) {
+    var a = actData[i];
+    var k = 'act:'+a.id;
+    if (!synced.has(k)) {
+      var detail = a.type==='crossfit' ? (a.wodType+' '+a.detail) : (a.km?a.km+'km':'');
+      var note = a.intensity || a.note || '';
+      rows.push([a.date, actLabel(a).split(' ')[0], detail, a.minutes||0, note]);
+      keys.push(k);
+    }
+  }
+  if (!rows.length) { toast('其他運動已全部同步', false); return; }
+  // Send as special action
+  fetch(url, {method:'POST', body:JSON.stringify({action:'activity', rows:rows})})
+    .then(function(res){ return res.json(); })
+    .then(function(json){
+      for(var i=0;i<keys.length;i++) synced.add(keys[i]);
+      lsSet('wd_act_synced', JSON.stringify(Array.from(synced)));
+      toast('其他運動已同步 '+rows.length+' 筆！');
+    })
+    .catch(function(){ toast('同步失敗', true); });
 }
 
 function resetSyncState() {
@@ -894,24 +1100,45 @@ function buildSummary() {
       lines.push('  '+sess.date+': '+detail.trim());
     }
   }
-  var extra = document.getElementById('extra-activity').value.trim();
-  if(extra) lines.push('\n其他運動：'+extra);
+  // Include actData from the same period
+  var actLines = [];
+  for (var i=0;i<actData.length;i++) {
+    var a = actData[i];
+    if (a.date >= s8str) {
+      actLines.push(a.date.slice(5)+' '+actLabel(a)+(a.detail?' — '+a.detail:''));
+    }
+  }
+  if (actLines.length) {
+    lines.push('');
+    lines.push('其他運動紀錄：');
+    for (var i=0;i<actLines.length;i++) lines.push('  '+actLines[i]);
+  }
   return lines.join('\n');
 }
 
 function cleanMarkdown(txt) {
-  // Remove ** bold markers, ## headings, leading dashes keep as bullets
   return txt
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/^#{1,3}\s*/gm, '')
     .trim();
 }
 
+function extractSources(txt) {
+  // Find all （來源：...） patterns
+  var sources = [], re = /（來源：([^）]+)）/g, m;
+  while ((m = re.exec(txt)) !== null) { if (sources.indexOf(m[1]) < 0) sources.push(m[1]); }
+  return sources;
+}
+
+function stripSources(txt) {
+  return txt.replace(/（來源：[^）]+）/g, '').trim();
+}
+
 function textToHTML(txt) {
   var lines = txt.split('\n');
   var html = '';
   for (var i=0;i<lines.length;i++) {
-    var l = cleanMarkdown(lines[i]);
+    var l = cleanMarkdown(stripSources(lines[i]));
     if (!l) { html += '<br>'; continue; }
     if (l.match(/^[-•]/)) {
       html += '<div style="display:flex;gap:6px;margin:4px 0"><span style="flex-shrink:0">•</span><span>'+l.replace(/^[-•]\s*/,'')+'</span></div>';
@@ -920,6 +1147,12 @@ function textToHTML(txt) {
     }
   }
   return html;
+}
+
+function sourcesToHTML(txt) {
+  var srcs = extractSources(txt);
+  if (!srcs.length) return '';
+  return '參考來源：' + srcs.join('、');
 }
 
 function parseAISections(text) {
@@ -958,11 +1191,9 @@ function runAIAnalysis() {
   secEl.style.display='none'; stEl.textContent=''; stEl.style.color='#8e8e93';
   var docs=[]; try{ docs=JSON.parse(lsGet('wd_docs')||'[]'); }catch(e){}
   var summary=buildSummary();
-  var extra=document.getElementById('extra-activity').value.trim();
-
   function callAPI(knowledge) {
     var userPrompt='以下是我最近'+aiPeriod+'天的訓練紀錄：\n\n'+summary
-      +(extra?'\n\n本週其他運動：'+extra:'')
+      
       +'\n\n請依序回答以下三個面向。請務必在每個面向開頭使用以下「完全一樣」的分隔標記，不可更改：\n'
       +'===SECTION1===\n'
       +'（在此寫課表檢視與建議：評估哪些動作在下一週可以調整重量、組數或次數，給出具體數字，不要使用 ** 或 ## 等符號）\n\n'
@@ -970,7 +1201,7 @@ function runAIAnalysis() {
       +'（在此寫休息與飲食：休息天安排，以及三大營養素蛋白質、碳水、脂肪的攝取方向）\n\n'
       +'===SECTION3===\n'
       +'（在此寫後續重點：後續課表應著重哪個面向）\n\n'
-      +'規則：只用純文字和連字號列點，不使用 Markdown 符號（不用 **、##、*），用繁體中文。';
+      +'規則：只用純文字和連字號列點，不使用 Markdown 符號（不用 **、##、*），用繁體中文。每一個具體建議後面，請用「（來源：書名/作者名）」格式標注依據的知識庫出處，若無特定出處則標注「（來源：一般訓練原則）」。';
 
     var sysBlocks;
     if(knowledge) {
@@ -1007,6 +1238,12 @@ function runAIAnalysis() {
       document.getElementById('ai-r1').innerHTML=textToHTML(parts.r1);
       document.getElementById('ai-r2').innerHTML=textToHTML(parts.r2);
       document.getElementById('ai-r3').innerHTML=textToHTML(parts.r3);
+      document.getElementById('ai-src1').textContent=sourcesToHTML(parts.r1);
+      document.getElementById('ai-src2').textContent=sourcesToHTML(parts.r2);
+      document.getElementById('ai-src3').textContent=sourcesToHTML(parts.r3);
+      document.getElementById('ai-src1').textContent=sourcesToHTML(parts.r1);
+      document.getElementById('ai-src2').textContent=sourcesToHTML(parts.r2);
+      document.getElementById('ai-src3').textContent=sourcesToHTML(parts.r3);
       secEl.style.display='block';
       stEl.textContent=knowledge?'✓ 分析完成（基於知識庫）':'✓ 分析完成';
       stEl.style.color='#34c759';
@@ -1030,7 +1267,7 @@ function runAIAnalysis() {
 }
 
 setTimeout(function(){
-  loadStorage(); initForm(); render(); renderDocList();
+  loadStorage(); initForm(); render(); renderDocList(); renderTodayAct();
 }, 0);
 </script>
 </body>
